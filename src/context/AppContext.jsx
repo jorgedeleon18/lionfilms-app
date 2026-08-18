@@ -42,10 +42,13 @@ export function AppProvider({ children }) {
   // (si existe), y se mantiene sincronizada si expira o se cierra.
   useEffect(() => {
     if (!supabase) return;
-    supabase.auth.getSession().then(({ data }) => setGabySession(data.session));
+    supabase.auth.getSession().then(({ data }) => {
+      setGabySession(data.session);
+      if (data.session) setMode('admin');
+    });
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       setGabySession(session);
-      if (!session) setMode('public');
+      setMode(session ? 'admin' : 'public');
     });
     return () => sub.subscription.unsubscribe();
   }, []);

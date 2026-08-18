@@ -4,6 +4,7 @@ import Header from './components/Header';
 import CartDrawer from './components/CartDrawer';
 import Toast from './components/Toast';
 import GabyLoginModal from './components/GabyLoginModal';
+import SiteFooter from './components/SiteFooter';
 import Home from './pages/Home';
 import Listado from './pages/Listado';
 import Producto from './pages/Producto';
@@ -31,7 +32,7 @@ export default function App() {
           <Route path="/fichas" element={<Fichas />} />
           <Route path="/admin/fechas/:id" element={<AdminFechas />} />
         </Routes>
-        <footer>Lion Films × tu app. Colores, textos y fotos son placeholders para ir ajustando juntos.</footer>
+        <SiteFooter />
         <CartDrawer />
         <Toast />
         <GabyLoginModal />

@@ -6,7 +6,7 @@ import lionHead from '../assets/lion-head.png';
 
 export default function Header() {
   const navigate = useNavigate();
-  const { mode, setMode, cart, pendingCount, setDrawerOpen, gabySession, setGabyLoginOpen, logoutGaby } = useApp();
+  const { mode, cart, pendingCount, setDrawerOpen, logoutGaby } = useApp();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const cartQty = cart.reduce((n, i) => n + i.qty, 0);
 
@@ -40,15 +40,6 @@ export default function Header() {
             <a className="social-btn-sm" href="https://instagram.com/lionfilms" target="_blank" rel="noopener noreferrer" title="Instagram" aria-label="Instagram">
               <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="5.5" /><circle cx="12" cy="12" r="4" /><circle cx="17.6" cy="6.4" r="1.1" fill="currentColor" stroke="none" /></svg>
             </a>
-          </div>
-          <div className="mode-pill">
-            <button className={mode === 'public' ? 'active' : ''} onClick={() => setMode('public')}>Cliente</button>
-            <button
-              className={mode === 'admin' ? 'active' : ''}
-              onClick={() => (gabySession ? setMode('admin') : setGabyLoginOpen(true))}
-            >
-              Gaby
-            </button>
           </div>
           {mode === 'admin' && (
             <div className="nav-icon-btn" onClick={() => navigate('/fichas')}>
