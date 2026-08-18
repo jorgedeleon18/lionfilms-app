@@ -63,7 +63,7 @@ button{font-family:inherit;}
 header.topbar{
   position:sticky;top:0;z-index:60;
   display:flex;align-items:center;justify-content:space-between;
-  padding:14px 32px;background:rgba(18,10,30,0.72);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);
+  padding:14px 32px;background:rgba(18,10,30,0.9);backdrop-filter:blur(6px);border-bottom:1px solid var(--border);
   gap:20px;flex-wrap:wrap;
 }
 .brand{display:flex;align-items:center;gap:10px;cursor:pointer;}
@@ -215,7 +215,7 @@ main.view{display:block;}
 
 .booking-card{
   flex:0 0 360px;max-width:360px;border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;
-  position:sticky;top:96px;background:var(--bg-card);backdrop-filter:blur(24px);box-shadow:0 20px 50px rgba(0,0,0,0.35);
+  position:sticky;top:96px;background:rgba(28,16,46,0.96);backdrop-filter:blur(8px);box-shadow:0 20px 50px rgba(0,0,0,0.35);
 }
 .booking-card h4{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;margin:0 0 16px;color:#fff;}
 
