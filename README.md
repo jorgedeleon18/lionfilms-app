@@ -1,6 +1,15 @@
 # Lion Films — App de alquiler de equipos
 
-App web para el alquiler de equipo audiovisual de Lion Films (Gaby). React + Vite, sin backend todavía — los datos de catálogo viven en `src/data/catalog.js` y el estado (carrito, cliente registrado, pedidos, fechas bloqueadas) se guarda en el `localStorage` del navegador. El paso siguiente planeado es conectar Supabase (ver `claude/plan-app-gaby.md` del proyecto de Claude) para que Gaby pueda editar el catálogo y todo quede guardado en una base de datos real.
+App web para el alquiler de equipo audiovisual de Lion Films (Gaby). React + Vite. El catálogo vive en `src/data/catalog.js` y el estado (carrito, cliente registrado, pedidos, fechas bloqueadas) se guarda en el `localStorage` del navegador — eso todavía no cambió. Lo que sí se conectó ya es **Supabase Auth**, solo para el login de Gaby (modo admin): antes cualquiera podía tocar el botón "Gaby" y entrar sin contraseña, ahora pide email/contraseña reales. La migración completa del catálogo/pedidos a una base de datos real sigue pendiente (ver `claude/plan-app-gaby.md`).
+
+## Configurar Supabase (login de Gaby)
+
+1. Copiá `.env.example` a un archivo nuevo llamado `.env.local` (este NO se sube a git, es solo para tu compu).
+2. Completá `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` con los datos de tu proyecto en [supabase.com](https://supabase.com) → Project Settings → API.
+3. En Supabase, andá a Authentication → Users → "Add user" y creale un usuario a Gaby (email + contraseña). Ese es el login que va a usar para entrar al modo admin.
+4. En Netlify (una vez deployado), andá a Site settings → Environment variables y agregá las mismas dos variables (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`) para que el login funcione también en el sitio publicado. Después de agregarlas hay que volver a deployar (Deploys → Trigger deploy).
+
+**Importante**: la `secret key` de Supabase (empieza con `sb_secret_...`) nunca va en la app ni en git — esa es solo para uso de servidor/administración desde el dashboard de Supabase. Acá solo usamos la `publishable key` (`sb_publishable_...`), que es segura para el navegador.
 
 ## Correr en local
 

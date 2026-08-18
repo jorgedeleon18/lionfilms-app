@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { INITIAL_BLOCKED, PRODUCTS } from '../data/catalog';
+import { supabase } from '../supabaseClient';
 
 const AppContext = createContext(null);
 
@@ -32,6 +33,45 @@ export function AppProvider({ children }) {
   const [pendingReturnProductId, setPendingReturnProductId] = useState(null);
   const [savedCalState, setSavedCalState] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [gabySession, setGabySession] = useState(null);
+  const [gabyLoginOpen, setGabyLoginOpen] = useState(false);
+  const [gabyLoginError, setGabyLoginError] = useState('');
+  const [gabyLoginLoading, setGabyLoginLoading] = useState(false);
+
+  // Sesión de Gaby vía Supabase Auth: al cargar, recupera la sesión guardada
+  // (si existe), y se mantiene sincronizada si expira o se cierra.
+  useEffect(() => {
+    if (!supabase) return;
+    supabase.auth.getSession().then(({ data }) => setGabySession(data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      setGabySession(session);
+      if (!session) setMode('public');
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  const loginGaby = useCallback(async (email, password) => {
+    if (!supabase) {
+      setGabyLoginError('Supabase no está configurado todavía (faltan las variables de entorno).');
+      return false;
+    }
+    setGabyLoginLoading(true);
+    setGabyLoginError('');
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setGabyLoginLoading(false);
+    if (error) {
+      setGabyLoginError('Email o contraseña incorrectos.');
+      return false;
+    }
+    setGabyLoginOpen(false);
+    setMode('admin');
+    return true;
+  }, []);
+
+  const logoutGaby = useCallback(async () => {
+    if (supabase) await supabase.auth.signOut();
+    setMode('public');
+  }, []);
 
   useEffect(() => save('lf_cart', cart), [cart]);
   useEffect(() => save('lf_cliente_reg', clienteRegistrado), [clienteRegistrado]);
@@ -114,6 +154,8 @@ export function AppProvider({ children }) {
 
   const value = {
     mode, setMode,
+    gabySession, gabyLoginOpen, setGabyLoginOpen, gabyLoginError, gabyLoginLoading,
+    loginGaby, logoutGaby,
     cart, addToCart, removeFromCart, clearCart,
     clienteRegistrado, clienteData, clienteActualDni, setClienteActualDni,
     registrarCliente, editarRegistro,

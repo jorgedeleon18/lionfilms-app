@@ -16,11 +16,22 @@ function clientesAgrupados(reservations) {
 
 export default function Fichas() {
   const navigate = useNavigate();
-  const { reservations, marcarEstado } = useApp();
+  const { reservations, marcarEstado, gabySession } = useApp();
   const [tab, setTab] = useState('pedidos');
   const [search, setSearch] = useState('');
 
   const byDni = useMemo(() => clientesAgrupados(reservations), [reservations]);
+
+  if (!gabySession) {
+    return (
+      <main className="view active">
+        <div className="container">
+          <p>Esta página es solo para Gaby. Iniciá sesión desde el botón "Gaby" arriba a la derecha.</p>
+          <a className="back-link" onClick={() => navigate('/')}>← Volver al inicio</a>
+        </div>
+      </main>
+    );
+  }
 
   function confirmarEntregado(reservaId, itemIdx) {
     const r = reservations.find((x) => x.id === reservaId);

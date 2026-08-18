@@ -6,7 +6,7 @@ import lionHead from '../assets/lion-head.png';
 
 export default function Header() {
   const navigate = useNavigate();
-  const { mode, setMode, cart, pendingCount, setDrawerOpen } = useApp();
+  const { mode, setMode, cart, pendingCount, setDrawerOpen, gabySession, setGabyLoginOpen, logoutGaby } = useApp();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const cartQty = cart.reduce((n, i) => n + i.qty, 0);
 
@@ -43,7 +43,12 @@ export default function Header() {
           </div>
           <div className="mode-pill">
             <button className={mode === 'public' ? 'active' : ''} onClick={() => setMode('public')}>Cliente</button>
-            <button className={mode === 'admin' ? 'active' : ''} onClick={() => setMode('admin')}>Gaby</button>
+            <button
+              className={mode === 'admin' ? 'active' : ''}
+              onClick={() => (gabySession ? setMode('admin') : setGabyLoginOpen(true))}
+            >
+              Gaby
+            </button>
           </div>
           {mode === 'admin' && (
             <div className="nav-icon-btn" onClick={() => navigate('/fichas')}>
@@ -58,8 +63,9 @@ export default function Header() {
         </nav>
       </header>
       {mode === 'admin' && (
-        <div className="admin-banner show">
-          👑 <b>Vista de Gaby (admin)</b> — acá vería botones de editar/eliminar en cada producto, alta de productos y categorías, calendario de bloqueo y el panel de fichas.
+        <div className="admin-banner show" style={{ justifyContent: 'space-between' }}>
+          <span>👑 <b>Vista de Gaby (admin)</b> — acá vería botones de editar/eliminar en cada producto, alta de productos y categorías, calendario de bloqueo y el panel de fichas.</span>
+          <a onClick={logoutGaby} style={{ cursor: 'pointer', whiteSpace: 'nowrap', textDecoration: 'underline' }}>Cerrar sesión</a>
         </div>
       )}
     </>

@@ -8,7 +8,18 @@ export default function AdminFechas() {
   const navigate = useNavigate();
   const { id } = useParams();
   const p = PRODUCTS.find((x) => x.id === Number(id));
-  const { blocked, toggleBlock, showToast } = useApp();
+  const { blocked, toggleBlock, showToast, gabySession } = useApp();
+
+  if (!gabySession) {
+    return (
+      <main className="view active">
+        <div className="container">
+          <p>Esta página es solo para Gaby. Iniciá sesión desde el botón "Gaby" arriba a la derecha.</p>
+          <a className="back-link" onClick={() => navigate('/')}>← Volver al inicio</a>
+        </div>
+      </main>
+    );
+  }
 
   if (!p) return <main className="view active"><div className="container"><p>Producto no encontrado.</p></div></main>;
 
