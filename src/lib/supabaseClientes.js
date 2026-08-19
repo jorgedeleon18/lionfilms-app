@@ -36,6 +36,8 @@ export async function upsertCliente(data) {
     mail: data.mail || null,
     dir: data.dir || null,
   };
-  const { error } = await supabase.from('clientes').upsert(row, { onConflict: 'dni' });
+  // Inserta si el DNI es nuevo; si ya existe, no hace nada (no pisa datos).
+  // Solo Gaby logueada puede corregir un registro existente (ver RLS).
+  const { error } = await supabase.from('clientes').upsert(row, { onConflict: 'dni', ignoreDuplicates: true });
   if (error) throw error;
 }
