@@ -1,4 +1,5 @@
 import { useApp } from '../context/AppContext';
+import lionHead from '../assets/lion-head.png';
 
 export default function SiteFooter() {
   const { gabySession, setGabyLoginOpen, logoutGaby } = useApp();
@@ -6,14 +7,14 @@ export default function SiteFooter() {
   return (
     <footer>
       Lion Films × tu app. Colores, textos y fotos son placeholders para ir ajustando juntos.
-      <div style={{ marginTop: 8 }}>
+      <div style={{ marginTop: 14 }}>
         {gabySession ? (
-          <a onClick={logoutGaby} style={{ cursor: 'pointer', fontSize: 11.5, color: 'var(--text-low)', textDecoration: 'underline' }}>
-            Cerrar sesión del equipo
+          <a className="nav-icon-btn nav-icon-btn-staff" onClick={logoutGaby} style={{ display: 'inline-flex', cursor: 'pointer' }}>
+            <img src={lionHead} alt="" style={{ width: 15, height: 15 }} /> Cerrar sesión Staff
           </a>
         ) : (
-          <a onClick={() => setGabyLoginOpen(true)} style={{ cursor: 'pointer', fontSize: 11.5, color: 'var(--text-low)', textDecoration: 'underline' }}>
-            Acceso del equipo
+          <a className="nav-icon-btn nav-icon-btn-staff" onClick={() => setGabyLoginOpen(true)} style={{ display: 'inline-flex', cursor: 'pointer' }}>
+            <img src={lionHead} alt="" style={{ width: 15, height: 15 }} /> Ingresar Staff
           </a>
         )}
       </div>

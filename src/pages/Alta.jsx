@@ -77,12 +77,12 @@ export default function Alta() {
           <div className="field-row">
             <div className="field">
               <label>DNI</label>
-              <input value={form.dni} onChange={(e) => setForm({ ...form, dni: onlyDigits(e.target.value, 8) })} placeholder="34511209" inputMode="numeric" maxLength={8} />
+              <input value={form.dni} onChange={(e) => setForm({ ...form, dni: onlyDigits(e.target.value, 8) })} placeholder="30123456" inputMode="numeric" maxLength={8} />
               <p className="ficha-note" style={{ marginBottom: 0 }}>8 números, sin puntos.</p>
             </div>
             <div className="field">
               <label>Teléfono</label>
-              <input value={form.tel} onChange={(e) => setForm({ ...form, tel: onlyDigits(e.target.value, 10) })} placeholder="1134143116" inputMode="numeric" maxLength={10} />
+              <input value={form.tel} onChange={(e) => setForm({ ...form, tel: onlyDigits(e.target.value, 10) })} placeholder="1122334455" inputMode="numeric" maxLength={10} />
               <p className="ficha-note" style={{ marginBottom: 0 }}>10 números, sin espacios ni guiones.</p>
             </div>
           </div>
