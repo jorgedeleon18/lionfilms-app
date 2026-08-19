@@ -86,57 +86,60 @@ export default function Producto() {
   return (
     <main className="view active">
       <a className="back-link" onClick={() => navigate(`/listado/${p.cat}`)}>← Volver al listado</a>
-      <div className="product-top">
-        <div className="product-media">
-          <div className="tile-badge-logo" style={{ position: 'absolute', top: 14, left: 14 }}><img src={lionHead} alt="" /></div>
-          {p.badge === 'promo' && <span className="ribbon ribbon-promo">Promo</span>}
-          {p.badge === 'consultar' && <span className="ribbon ribbon-consultar">Consultar</span>}
-          <ProductMedia product={p} />
+      <div className="product-layout">
+        <div className="product-col-left">
+          <div className="product-media">
+            <div className="tile-badge-logo" style={{ position: 'absolute', top: 14, left: 14 }}><img src={lionHead} alt="" /></div>
+            {p.badge === 'promo' && <span className="ribbon ribbon-promo">Promo</span>}
+            {p.badge === 'consultar' && <span className="ribbon ribbon-consultar">Consultar</span>}
+            <ProductMedia product={p} />
+          </div>
+          <div className="product-desc">
+            <h3>Descripción</h3>
+            <p>{p.descripcion || p.sub}</p>
+            <p>Equipo revisado y testeado antes de cada entrega — coordinamos con vos el retiro y la devolución una vez confirmada la reserva.</p>
+            <h3 style={{ marginTop: 26 }}>Ficha técnica</h3>
+            <ul className="product-bullets">
+              {p.specs.map((s) => <li key={s[0]}><b>{s[0]}:</b> {s[1]}</li>)}
+            </ul>
+          </div>
         </div>
-        <div className="product-info">
-          <div className="product-cat">{catLabel(p.cat)}</div>
-          <h1>{p.name}</h1>
-          <div className="product-price">{priceHtml}</div>
-          <ul className="product-bullets">
-            <li>Valores de alquiler por jornada, en pesos argentinos.</li>
-            <li>Precio con descuento por semana y por mes — consultá por WhatsApp.</li>
-            <li>Descuentos especiales para estudiantes de carreras audiovisuales.</li>
-            <li><b>{p.sub}</b></li>
-          </ul>
-        </div>
-      </div>
-      <div className="product-body">
-        <div className="product-desc">
-          <h3>Descripción</h3>
-          <p>{p.sub}. Equipo revisado y testeado antes de cada entrega — coordinamos con vos el retiro y la devolución una vez confirmada la reserva.</p>
-          <h3 style={{ marginTop: 26 }}>Ficha técnica</h3>
-          <ul className="product-bullets">
-            {p.specs.map((s) => <li key={s[0]}><b>{s[0]}:</b> {s[1]}</li>)}
-          </ul>
-        </div>
-        <div className="booking-card">
-          <h4>Disponibilidad</h4>
-          {!clienteRegistrado && (
-            <div className="gate-notice">
-              <p>🔒 Para poder alquilar necesitás completar tu registro (una sola vez).</p>
-              <button className="btn btn-navy btn-sm btn-block" onClick={irARegistrarme}>Registrarme ahora</button>
+        <div className="product-col-right">
+          <div className="product-info">
+            <div className="product-cat">{catLabel(p.cat)}</div>
+            <h1>{p.name}</h1>
+            <div className="product-price">{priceHtml}</div>
+            <ul className="product-bullets">
+              <li>Valores de alquiler por jornada, en pesos argentinos.</li>
+              <li>Precio con descuento por semana y por mes — consultá por WhatsApp.</li>
+              <li>Descuentos especiales para estudiantes de carreras audiovisuales.</li>
+              <li><b>{p.sub}</b></li>
+            </ul>
+          </div>
+          <div className="booking-card">
+            <h4>Disponibilidad</h4>
+            {!clienteRegistrado && (
+              <div className="gate-notice">
+                <p>🔒 Para poder alquilar necesitás completar tu registro (una sola vez).</p>
+                <button className="btn btn-navy btn-sm btn-block" onClick={irARegistrarme}>Registrarme ahora</button>
+              </div>
+            )}
+            <Calendar mode="select" blockedKeys={blockedKeys} from={from} to={to} onPick={pickDate} />
+            <div className="cal-legend">
+              <div className="cal-legend-item"><span className="cal-legend-dot" style={{ background: 'var(--success)' }}></span>Disponible</div>
+              <div className="cal-legend-item"><span className="cal-legend-dot" style={{ background: 'var(--danger)' }}></span>Ya reservado</div>
+              <div className="cal-legend-item"><span className="cal-legend-dot" style={{ background: 'linear-gradient(120deg,var(--accent-orange),var(--accent-pink))' }}></span>Tu selección</div>
             </div>
-          )}
-          <Calendar mode="select" blockedKeys={blockedKeys} from={from} to={to} onPick={pickDate} />
-          <div className="cal-legend">
-            <div className="cal-legend-item"><span className="cal-legend-dot" style={{ background: 'var(--success)' }}></span>Disponible</div>
-            <div className="cal-legend-item"><span className="cal-legend-dot" style={{ background: 'var(--danger)' }}></span>Ya reservado</div>
-            <div className="cal-legend-item"><span className="cal-legend-dot" style={{ background: 'linear-gradient(120deg,var(--accent-orange),var(--accent-pink))' }}></span>Tu selección</div>
+            <div className="cal-range-label">{rangeLabel}</div>
+            <div className="qty-row">
+              <span style={{ fontSize: 12.5, color: 'var(--text-mid)', fontWeight: 700 }}>Cantidad</span>
+              <div className="qty-btn" onClick={() => setQty((q) => Math.max(1, q - 1))}>−</div>
+              <span style={{ fontWeight: 800 }}>{qty}</span>
+              <div className="qty-btn" onClick={() => setQty((q) => q + 1)}>+</div>
+              <span className="booking-price">{p.price}</span>
+            </div>
+            <button className="btn btn-navy btn-block" disabled={btnDisabled} onClick={handleAdd}>{btnLabel}</button>
           </div>
-          <div className="cal-range-label">{rangeLabel}</div>
-          <div className="qty-row">
-            <span style={{ fontSize: 12.5, color: 'var(--text-mid)', fontWeight: 700 }}>Cantidad</span>
-            <div className="qty-btn" onClick={() => setQty((q) => Math.max(1, q - 1))}>−</div>
-            <span style={{ fontWeight: 800 }}>{qty}</span>
-            <div className="qty-btn" onClick={() => setQty((q) => q + 1)}>+</div>
-            <span className="booking-price">{p.price}</span>
-          </div>
-          <button className="btn btn-navy btn-block" disabled={btnDisabled} onClick={handleAdd}>{btnLabel}</button>
         </div>
       </div>
     </main>
