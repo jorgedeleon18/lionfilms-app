@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { PRODUCTS } from '../data/catalog';
 import { fmtKey, rentalDays, money, STATUS_LABEL } from '../utils';
 
 function clientesAgrupados(reservations) {
@@ -16,7 +15,7 @@ function clientesAgrupados(reservations) {
 
 export default function Fichas() {
   const navigate = useNavigate();
-  const { reservations, marcarEstado, gabySession } = useApp();
+  const { reservations, marcarEstado, gabySession, getProduct } = useApp();
   const [tab, setTab] = useState('pedidos');
   const [search, setSearch] = useState('');
 
@@ -36,7 +35,7 @@ export default function Fichas() {
   function confirmarEntregado(reservaId, itemIdx) {
     const r = reservations.find((x) => x.id === reservaId);
     const item = r.items[itemIdx];
-    const p = PRODUCTS.find((x) => x.id === item.productId);
+    const p = getProduct(item.productId);
     const ok = window.confirm(`¿Confirmás que le entregaste "${p.name}" a ${r.cliente.nombre} ${r.cliente.apellido}?\n\nSe van a bloquear los días ${fmtKey(item.from)} → ${fmtKey(item.to)} para que no los pueda reservar otro cliente.`);
     if (!ok) return;
     marcarEstado(reservaId, itemIdx, 'entregado');
@@ -44,7 +43,7 @@ export default function Fichas() {
   function confirmarNoDisponible(reservaId, itemIdx) {
     const r = reservations.find((x) => x.id === reservaId);
     const item = r.items[itemIdx];
-    const p = PRODUCTS.find((x) => x.id === item.productId);
+    const p = getProduct(item.productId);
     const ok = window.confirm(`¿Marcar "${p.name}" como no disponible para ${r.cliente.nombre} ${r.cliente.apellido}?\n\nNo se bloquea ninguna fecha. Después contactalo por WhatsApp o mail para que elija otra fecha desde la web.`);
     if (!ok) return;
     marcarEstado(reservaId, itemIdx, 'no_disponible');
@@ -97,7 +96,7 @@ export default function Fichas() {
                       </div>
                     </div>
                     {group.reservas.map(({ reservaId, itemIdx, item }) => {
-                      const p = PRODUCTS.find((x) => x.id === item.productId);
+                      const p = getProduct(item.productId);
                       const days = rentalDays(item.from, item.to);
                       const isPendiente = item.status === 'pendiente';
                       return (

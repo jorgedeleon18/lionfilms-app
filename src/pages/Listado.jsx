@@ -1,6 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { CATEGORIES, PRODUCTS, catLabel } from '../data/catalog';
 import { money } from '../utils';
 import ProductMedia from '../components/ProductMedia';
 import lionHead from '../assets/lion-head.png';
@@ -8,8 +7,8 @@ import lionHead from '../assets/lion-head.png';
 export default function Listado() {
   const navigate = useNavigate();
   const { cat = 'todas' } = useParams();
-  const { mode } = useApp();
-  const items = PRODUCTS.filter((p) => cat === 'todas' || p.cat === cat);
+  const { mode, categories, products, catLabel } = useApp();
+  const items = products.filter((p) => cat === 'todas' || p.cat === cat);
 
   return (
     <main className="view active">
@@ -17,7 +16,7 @@ export default function Listado() {
         <aside className="sidebar">
           <h4>Categorías</h4>
           <div>
-            {CATEGORIES.map((c) => (
+            {categories.map((c) => (
               <div key={c.id} className={`sidebar-item${c.id === cat ? ' active' : ''}`} onClick={() => navigate(`/listado/${c.id}`)}>
                 {c.icon ? c.icon + ' ' : ''}{c.label}
               </div>
@@ -28,6 +27,9 @@ export default function Listado() {
           <div className="listado-head">
             <h2>{cat === 'todas' ? 'Listado de equipos' : catLabel(cat)}</h2>
             <div className="muted">{items.length} {items.length === 1 ? 'producto' : 'productos'}</div>
+            {mode === 'admin' && (
+              <button className="btn btn-sm btn-navy" onClick={() => navigate('/admin/productos/nuevo')}>+ Nuevo producto</button>
+            )}
           </div>
           <div className="grid">
             {items.map((p) => {
@@ -47,7 +49,7 @@ export default function Listado() {
                   <div className="card-price">{priceHtml}</div>
                   {mode === 'admin' && (
                     <div className="card-admin-row">
-                      <button className="btn btn-sm btn-ghost" style={{ flex: 1 }} onClick={(e) => e.stopPropagation()}>✏️ Editar</button>
+                      <button className="btn btn-sm btn-ghost" style={{ flex: 1 }} onClick={(e) => { e.stopPropagation(); navigate(`/admin/productos/${p.id}`); }}>✏️ Editar</button>
                       <button className="btn btn-sm btn-ghost" style={{ flex: 1 }} onClick={(e) => { e.stopPropagation(); navigate(`/admin/fechas/${p.id}`); }}>📅 Fechas</button>
                     </div>
                   )}

@@ -14,6 +14,8 @@ import Contacto from './pages/Contacto';
 import Pedido from './pages/Pedido';
 import Fichas from './pages/Fichas';
 import AdminFechas from './pages/AdminFechas';
+import AdminCatalogo from './pages/AdminCatalogo';
+import AdminProducto from './pages/AdminProducto';
 
 export default function App() {
   return (
@@ -31,6 +33,8 @@ export default function App() {
           <Route path="/pedido" element={<Pedido />} />
           <Route path="/fichas" element={<Fichas />} />
           <Route path="/admin/fechas/:id" element={<AdminFechas />} />
+          <Route path="/admin/catalogo" element={<AdminCatalogo />} />
+          <Route path="/admin/productos/:id" element={<AdminProducto />} />
         </Routes>
         <SiteFooter />
         <CartDrawer />

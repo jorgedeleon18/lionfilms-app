@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { CATEGORIES } from '../data/catalog';
 import lionHead from '../assets/lion-head.png';
 
 export default function Header() {
   const navigate = useNavigate();
-  const { mode, cart, pendingCount, setDrawerOpen, logoutGaby } = useApp();
+  const { mode, cart, pendingCount, setDrawerOpen, logoutGaby, categories } = useApp();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const cartQty = cart.reduce((n, i) => n + i.qty, 0);
 
@@ -21,7 +20,7 @@ export default function Header() {
           <div className={`nav-dropdown${dropdownOpen ? ' open' : ''}`} onMouseLeave={() => setDropdownOpen(false)}>
             <span className="nav-link" onClick={() => setDropdownOpen((o) => !o)}>Equipos ▾</span>
             <div className="dropdown-menu">
-              {CATEGORIES.map((c) => (
+              {categories.map((c) => (
                 <a key={c.id} onClick={() => { setDropdownOpen(false); navigate(`/listado/${c.id}`); }}>
                   {c.icon ? c.icon + ' ' : ''}{c.label}
                 </a>
@@ -42,10 +41,13 @@ export default function Header() {
             </a>
           </div>
           {mode === 'admin' && (
-            <div className="nav-icon-btn" onClick={() => navigate('/fichas')}>
-              📇 Fichas
-              {pendingCount > 0 && <span className="badge-count">{pendingCount}</span>}
-            </div>
+            <>
+              <div className="nav-icon-btn" onClick={() => navigate('/admin/catalogo')}>🗂️ Catálogo</div>
+              <div className="nav-icon-btn" onClick={() => navigate('/fichas')}>
+                📇 Fichas
+                {pendingCount > 0 && <span className="badge-count">{pendingCount}</span>}
+              </div>
+            </>
           )}
           <a className="nav-icon-btn" onClick={() => navigate('/pedido')}>Mi pedido</a>
           <div className="nav-icon-btn" onClick={() => setDrawerOpen(true)}>

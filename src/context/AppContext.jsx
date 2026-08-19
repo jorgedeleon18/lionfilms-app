@@ -1,6 +1,11 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
-import { INITIAL_BLOCKED, PRODUCTS } from '../data/catalog';
 import { supabase } from '../supabaseClient';
+import {
+  fetchCatalog,
+  crearProducto, actualizarProducto, borrarProducto,
+  crearCategoria, borrarCategoria,
+  crearCombo, borrarCombo,
+} from '../lib/supabaseCatalog';
 
 const AppContext = createContext(null);
 
@@ -26,7 +31,7 @@ export function AppProvider({ children }) {
   const [clienteRegistrado, setClienteRegistrado] = useState(() => load('lf_cliente_reg', false));
   const [clienteData, setClienteData] = useState(() => load('lf_cliente_data', null));
   const [clienteActualDni, setClienteActualDni] = useState(() => load('lf_cliente_dni', null));
-  const [blocked, setBlocked] = useState(() => load('lf_blocked', INITIAL_BLOCKED));
+  const [blocked, setBlocked] = useState(() => load('lf_blocked', {}));
   const [reservations, setReservations] = useState(() => load('lf_reservations', []));
   const [toast, setToast] = useState('');
   const toastTimer = useRef(null);
@@ -37,6 +42,85 @@ export function AppProvider({ children }) {
   const [gabyLoginOpen, setGabyLoginOpen] = useState(false);
   const [gabyLoginError, setGabyLoginError] = useState('');
   const [gabyLoginLoading, setGabyLoginLoading] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [bundles, setBundles] = useState([]);
+  const [catalogLoading, setCatalogLoading] = useState(true);
+
+  const reloadCatalog = useCallback(async () => {
+    const { categories: c, products: p, bundles: b } = await fetchCatalog();
+    setCategories(c);
+    setProducts(p);
+    setBundles(b);
+    setCatalogLoading(false);
+  }, []);
+
+  useEffect(() => { reloadCatalog(); }, [reloadCatalog]);
+
+  const catLabel = useCallback((catId) => {
+    const c = categories.find((x) => x.id === catId);
+    return c ? c.label : catId;
+  }, [categories]);
+
+  // Devuelve el producto o, si ya fue borrado del catálogo (puede pasar con
+  // pedidos históricos), un objeto placeholder para no romper la pantalla.
+  const getProduct = useCallback((id) => (
+    products.find((p) => p.id === id) || { id, name: 'Producto eliminado del catálogo', icon: '❔', img: null, price: '—', priceNum: 0, cat: 'todas', specs: [] }
+  ), [products]);
+
+  function specsToRows(specs) {
+    return (specs || []).map(([etiqueta, valor]) => ({ etiqueta, valor }));
+  }
+
+  const guardarProducto = useCallback(async (id, form) => {
+    const producto = {
+      categoria_id: form.cat,
+      nombre: form.name,
+      subtitulo: form.sub || null,
+      descripcion: form.descripcion || null,
+      precio_num: Number(form.priceNum) || 0,
+      precio_original_num: form.originalPriceNum ? Number(form.originalPriceNum) : null,
+      destacado: !!form.featured,
+      badge: form.badge || null,
+      imagen_url: form.img || null,
+      stock: Number(form.stock) || 1,
+      specs: specsToRows(form.specs),
+    };
+    if (id) await actualizarProducto(id, producto);
+    else await crearProducto(producto);
+    await reloadCatalog();
+  }, [reloadCatalog]);
+
+  const eliminarProducto = useCallback(async (id) => {
+    await borrarProducto(id);
+    await reloadCatalog();
+  }, [reloadCatalog]);
+
+  const guardarCategoria = useCallback(async (form) => {
+    await crearCategoria({ id: form.id, label: form.label, icon: form.icon || '📦', orden: categories.length + 1 });
+    await reloadCatalog();
+  }, [reloadCatalog, categories.length]);
+
+  const eliminarCategoria = useCallback(async (id) => {
+    await borrarCategoria(id);
+    await reloadCatalog();
+  }, [reloadCatalog]);
+
+  const guardarCombo = useCallback(async (form) => {
+    await crearCombo({
+      nombre: form.name,
+      precio_num: Number(form.priceNum) || 0,
+      fecha_desde: form.from || null,
+      fecha_hasta: form.to || null,
+      items: form.items,
+    });
+    await reloadCatalog();
+  }, [reloadCatalog]);
+
+  const eliminarCombo = useCallback(async (id) => {
+    await borrarCombo(id);
+    await reloadCatalog();
+  }, [reloadCatalog]);
 
   // Sesión de Gaby vía Supabase Auth: al cargar, recupera la sesión guardada
   // (si existe), y se mantiene sincronizada si expira o se cierra.
@@ -168,7 +252,10 @@ export function AppProvider({ children }) {
     pendingReturnProductId, setPendingReturnProductId,
     savedCalState, setSavedCalState,
     drawerOpen, setDrawerOpen,
-    productsById: PRODUCTS,
+    categories, products, bundles, catalogLoading, catLabel, getProduct, reloadCatalog,
+    guardarProducto, eliminarProducto,
+    guardarCategoria, eliminarCategoria,
+    guardarCombo, eliminarCombo,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

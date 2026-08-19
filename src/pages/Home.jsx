@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { PRODUCTS, BUNDLES } from '../data/catalog';
 import { money } from '../utils';
 import ProductMedia from '../components/ProductMedia';
 import lionHead from '../assets/lion-head.png';
@@ -8,8 +7,8 @@ import lionLogoColor from '../assets/lion-logo-color.png';
 
 export default function Home() {
   const navigate = useNavigate();
-  const { cart, addToCart, clienteRegistrado, showToast } = useApp();
-  const featured = PRODUCTS.filter((p) => p.featured);
+  const { cart, addToCart, clienteRegistrado, showToast, products, bundles } = useApp();
+  const featured = products.filter((p) => p.featured);
 
   function addBundleToCart(bundle) {
     if (!clienteRegistrado) {
@@ -37,8 +36,9 @@ export default function Home() {
         <div className="promo-watermark"><img src={lionLogoColor} alt="" /></div>
         <div className="section-title">Promociones<span>Combos armados con descuento — ideales para rodajes cortos</span></div>
         <div className="promo-grid">
-          {BUNDLES.map((b) => {
-            const items = b.items.map((id) => PRODUCTS.find((p) => p.id === id));
+          {bundles.map((b) => {
+            const items = b.items.map((id) => products.find((p) => p.id === id)).filter(Boolean);
+            if (!items.length) return null;
             const originalPriceNum = items.reduce((n, p) => n + p.priceNum, 0);
             const save = originalPriceNum - b.priceNum;
             return (

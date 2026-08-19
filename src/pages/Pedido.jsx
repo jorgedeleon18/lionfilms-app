@@ -1,15 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { PRODUCTS, catLabel } from '../data/catalog';
 import { fmtKey, rentalDays, money, STATUS_LABEL } from '../utils';
 
 export default function Pedido() {
   const navigate = useNavigate();
-  const { cart, clienteActualDni, reservations, setDrawerOpen } = useApp();
+  const { cart, clienteActualDni, reservations, setDrawerOpen, getProduct, catLabel } = useApp();
 
   let total = 0;
   const rows = cart.map((item) => {
-    const p = PRODUCTS.find((x) => x.id === item.productId);
+    const p = getProduct(item.productId);
     const days = rentalDays(item.from, item.to);
     const subtotal = p.priceNum * item.qty * days;
     total += subtotal;
@@ -74,7 +73,7 @@ export default function Pedido() {
             <p className="cal-admin-note">Esto simula lo que verías si ya estuvieras identificado con tu cuenta.</p>
             <div>
               {misReservas.map((r) => r.items.map((item, i) => {
-                const p = PRODUCTS.find((x) => x.id === item.productId);
+                const p = getProduct(item.productId);
                 return (
                   <div className="order-history-item" key={r.id + '-' + i}>
                     <div className="thumb">{p.icon}</div>

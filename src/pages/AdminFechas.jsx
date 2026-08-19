@@ -1,14 +1,13 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { PRODUCTS } from '../data/catalog';
 import Calendar from '../components/Calendar';
 import ProductMedia from '../components/ProductMedia';
 
 export default function AdminFechas() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const p = PRODUCTS.find((x) => x.id === Number(id));
-  const { blocked, toggleBlock, showToast, gabySession } = useApp();
+  const { blocked, toggleBlock, showToast, gabySession, products, catalogLoading } = useApp();
+  const p = products.find((x) => x.id === Number(id));
 
   if (!gabySession) {
     return (
@@ -21,7 +20,7 @@ export default function AdminFechas() {
     );
   }
 
-  if (!p) return <main className="view active"><div className="container"><p>Producto no encontrado.</p></div></main>;
+  if (!p) return <main className="view active"><div className="container"><p>{catalogLoading ? 'Cargando…' : 'Producto no encontrado.'}</p></div></main>;
 
   const blockedKeys = blocked[p.id] || [];
 

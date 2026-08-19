@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { PRODUCTS, catLabel } from '../data/catalog';
 import { fmtKey, money } from '../utils';
 import Calendar from '../components/Calendar';
 import ProductMedia from '../components/ProductMedia';
@@ -10,20 +9,21 @@ import lionHead from '../assets/lion-head.png';
 export default function Producto() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const p = PRODUCTS.find((x) => x.id === Number(id));
   const {
+    products, catLabel, catalogLoading,
     clienteRegistrado, addToCart, blocked, showToast,
     setPendingReturnProductId, savedCalState, setSavedCalState,
   } = useApp();
+  const p = products.find((x) => x.id === Number(id));
 
-  const preserved = savedCalState && savedCalState.productId === p.id ? savedCalState : null;
+  const preserved = p && savedCalState && savedCalState.productId === p.id ? savedCalState : null;
   const [from, setFrom] = useState(preserved?.from ?? null);
   const [to, setTo] = useState(preserved?.to ?? null);
   const [qty, setQty] = useState(1);
 
   if (preserved) setSavedCalState(null);
 
-  if (!p) return <main className="view active"><div className="container"><p>Producto no encontrado.</p></div></main>;
+  if (!p) return <main className="view active"><div className="container"><p>{catalogLoading ? 'Cargando…' : 'Producto no encontrado.'}</p></div></main>;
 
   const blockedKeys = blocked[p.id] || [];
 

@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { PRODUCTS } from '../data/catalog';
 import { fmtKey, rentalDays, money } from '../utils';
 
 export default function CartDrawer() {
   const {
     drawerOpen, setDrawerOpen, cart, removeFromCart, clearCart,
     clienteRegistrado, clienteData, registrarReserva, setClienteActualDni, showToast,
+    getProduct,
   } = useApp();
 
   const [form, setForm] = useState({ nombre: '', apellido: '', dni: '', tel: '', dir: '', mail: '' });
@@ -24,7 +24,7 @@ export default function CartDrawer() {
 
   let total = 0;
   const rows = cart.map((item, idx) => {
-    const p = PRODUCTS.find((x) => x.id === item.productId);
+    const p = getProduct(item.productId);
     const days = rentalDays(item.from, item.to);
     total += p.priceNum * item.qty * days;
     return { item, idx, p, days };
@@ -42,7 +42,7 @@ export default function CartDrawer() {
     lines.push('');
     lines.push('*Equipo solicitado:*');
     cart.forEach((item) => {
-      const p = PRODUCTS.find((x) => x.id === item.productId);
+      const p = getProduct(item.productId);
       lines.push(`- ${p.name} x${item.qty} (${fmtKey(item.from)} → ${fmtKey(item.to)})`);
     });
     return lines.join('\n');
