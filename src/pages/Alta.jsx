@@ -13,9 +13,17 @@ export default function Alta() {
   const [form, setForm] = useState({ nombre: '', apellido: '', dni: '', tel: '', dir: '', mail: '' });
   const [terms, setTerms] = useState(false);
 
+  // Solo números, sin puntos ni espacios ni letras — y con una cantidad fija
+  // de dígitos, así los datos quedan siempre parejos en la ficha de Gaby.
+  function onlyDigits(value, maxLen) {
+    return value.replace(/\D/g, '').slice(0, maxLen);
+  }
+
   async function submit() {
     if (!terms) { showToast('Tenés que aceptar las bases y condiciones'); return; }
     if (!form.nombre.trim() || !form.dni.trim()) { showToast('Completá al menos nombre y DNI'); return; }
+    if (!/^\d{8}$/.test(form.dni.trim())) { showToast('El DNI tiene que tener 8 números, sin puntos ni letras'); return; }
+    if (form.tel.trim() && !/^\d{10}$/.test(form.tel.trim())) { showToast('El teléfono tiene que tener 10 números, sin espacios ni caracteres'); return; }
     await registrarCliente({ ...form, nombre: form.nombre.trim(), dni: form.dni.trim() });
     showToast('¡Listo! Ya podés alquilar sin volver a registrarte 🎬');
     if (pendingReturnProductId) {
@@ -67,8 +75,16 @@ export default function Alta() {
             <div className="field"><label>Apellido</label><input value={form.apellido} onChange={(e) => setForm({ ...form, apellido: e.target.value })} placeholder="Pérez" /></div>
           </div>
           <div className="field-row">
-            <div className="field"><label>DNI</label><input value={form.dni} onChange={(e) => setForm({ ...form, dni: e.target.value })} placeholder="30.123.456" /></div>
-            <div className="field"><label>Teléfono</label><input value={form.tel} onChange={(e) => setForm({ ...form, tel: e.target.value })} placeholder="11 2345 6789" /></div>
+            <div className="field">
+              <label>DNI</label>
+              <input value={form.dni} onChange={(e) => setForm({ ...form, dni: onlyDigits(e.target.value, 8) })} placeholder="34511209" inputMode="numeric" maxLength={8} />
+              <p className="ficha-note" style={{ marginBottom: 0 }}>8 números, sin puntos.</p>
+            </div>
+            <div className="field">
+              <label>Teléfono</label>
+              <input value={form.tel} onChange={(e) => setForm({ ...form, tel: onlyDigits(e.target.value, 10) })} placeholder="1134143116" inputMode="numeric" maxLength={10} />
+              <p className="ficha-note" style={{ marginBottom: 0 }}>10 números, sin espacios ni guiones.</p>
+            </div>
           </div>
           <div className="field-row">
             <div className="field"><label>Dirección</label><input value={form.dir} onChange={(e) => setForm({ ...form, dir: e.target.value })} placeholder="Av. Corrientes 1234, CABA" /></div>
