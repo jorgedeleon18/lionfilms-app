@@ -63,7 +63,7 @@ export default function CartDrawer() {
     setClienteActualDni(cliente.dni);
 
     if (channel === 'whatsapp') {
-      window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+      window.open('https://wa.me/5491136239892?text=' + encodeURIComponent(text), '_blank');
     } else {
       const subject = encodeURIComponent('Pedido de alquiler — Lion Films');
       const body = encodeURIComponent(text.replace(/\*/g, ''));
