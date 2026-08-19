@@ -41,13 +41,10 @@ export default function Header() {
             </a>
           </div>
           {mode === 'admin' && (
-            <>
-              <div className="nav-icon-btn" onClick={() => navigate('/admin/catalogo')}>🗂️ Catálogo</div>
-              <div className="nav-icon-btn" onClick={() => navigate('/fichas')}>
-                📇 Fichas
-                {pendingCount > 0 && <span className="badge-count">{pendingCount}</span>}
-              </div>
-            </>
+            <div className="nav-icon-btn" onClick={() => navigate('/admin')}>
+              🛠️ Panel Staff
+              {pendingCount > 0 && <span className="badge-count">{pendingCount}</span>}
+            </div>
           )}
           <a className="nav-icon-btn" onClick={() => navigate('/pedido')}>Mi pedido</a>
           <div className="nav-icon-btn" onClick={() => setDrawerOpen(true)}>

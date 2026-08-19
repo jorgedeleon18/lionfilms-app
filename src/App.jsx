@@ -16,6 +16,7 @@ import Fichas from './pages/Fichas';
 import AdminFechas from './pages/AdminFechas';
 import AdminCatalogo from './pages/AdminCatalogo';
 import AdminProducto from './pages/AdminProducto';
+import AdminPanel from './pages/AdminPanel';
 
 export default function App() {
   return (
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/pedido" element={<Pedido />} />
           <Route path="/fichas" element={<Fichas />} />
+          <Route path="/admin" element={<AdminPanel />} />
           <Route path="/admin/fechas/:id" element={<AdminFechas />} />
           <Route path="/admin/catalogo" element={<AdminCatalogo />} />
           <Route path="/admin/productos/:id" element={<AdminProducto />} />

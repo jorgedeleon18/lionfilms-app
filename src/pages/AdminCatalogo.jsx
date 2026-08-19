@@ -100,8 +100,11 @@ export default function AdminCatalogo() {
 
         {tab === 'productos' && (
           <div>
-            <p className="cal-admin-note">Para agregar, editar o borrar productos, andá al listado de equipos — ahí, estando logueada, cada producto tiene los botones "Editar" y "Fechas", y arriba hay un botón "+ Nuevo producto".</p>
-            <button className="btn btn-navy" onClick={() => navigate('/listado/todas')}>Ir al listado de equipos</button>
+            <p className="cal-admin-note">Cargá un producto nuevo desde acá, o andá al listado de equipos para editar, borrar o gestionar fechas de los que ya existen.</p>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              <button className="btn btn-gradient" onClick={() => navigate('/admin/productos/nuevo')}>+ Nuevo producto</button>
+              <button className="btn btn-navy" onClick={() => navigate('/listado/todas')}>Ir al listado de equipos</button>
+            </div>
           </div>
         )}
 
