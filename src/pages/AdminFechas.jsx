@@ -33,25 +33,27 @@ export default function AdminFechas() {
   return (
     <main className="view active">
       <a className="back-link" onClick={() => navigate(`/listado/${p.cat}`)}>← Volver al listado</a>
-      <div className="product-top">
-        <div className="product-media"><ProductMedia product={p} /></div>
-        <div className="product-info">
-          <div className="product-cat">Panel de Gaby</div>
-          <h1>Disponibilidad — {p.name}</h1>
+      <div className="product-layout">
+        <div className="product-col-left">
+          <div className="product-media"><ProductMedia product={p} /></div>
+          <div className="product-desc">
+            <p className="cal-admin-note">Así arranca la página: todos los días en verde. Cuando cerrás un alquiler por fuera de la app, tocá esos días acá para bloquearlos (se ponen en rojo) y dejan de estar disponibles. Tocá de nuevo un día rojo para liberarlo.</p>
+          </div>
         </div>
-      </div>
-      <div className="product-body">
-        <div className="product-desc">
-          <p className="cal-admin-note">Así arranca la página: todos los días en verde. Cuando cerrás un alquiler por fuera de la app, tocá esos días acá para bloquearlos (se ponen en rojo) y dejan de estar disponibles. Tocá de nuevo un día rojo para liberarlo.</p>
-        </div>
-        <div className="booking-card">
+        <div className="product-col-right">
+          <div className="product-info">
+            <div className="product-cat">Panel de Gaby</div>
+            <h1>Disponibilidad — {p.name}</h1>
+          </div>
+          <div className="booking-card">
           <h4>Calendario de bloqueo</h4>
           <Calendar mode="manage" blockedKeys={blockedKeys} onToggleBlock={handleToggle} />
           <div className="cal-legend">
             <div className="cal-legend-item"><span className="cal-legend-dot" style={{ background: 'var(--success)' }}></span>Disponible</div>
             <div className="cal-legend-item"><span className="cal-legend-dot" style={{ background: 'var(--danger)' }}></span>Bloqueado</div>
           </div>
-          <button className="btn btn-navy btn-block" style={{ marginTop: 16 }} onClick={() => navigate(`/listado/${p.cat}`)}>Listo</button>
+            <button className="btn btn-navy btn-block" style={{ marginTop: 16 }} onClick={() => navigate(`/listado/${p.cat}`)}>Listo</button>
+          </div>
         </div>
       </div>
     </main>
