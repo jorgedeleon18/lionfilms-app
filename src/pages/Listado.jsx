@@ -28,7 +28,7 @@ export default function Listado() {
             <h2>{cat === 'todas' ? 'Listado de equipos' : catLabel(cat)}</h2>
             <div className="muted">{items.length} {items.length === 1 ? 'producto' : 'productos'}</div>
             {mode === 'admin' && (
-              <button className="btn btn-sm btn-navy" onClick={() => navigate('/admin/productos/nuevo')}>+ Nuevo producto</button>
+              <button className="btn btn-sm btn-gradient" onClick={() => navigate('/admin/productos/nuevo')}>+ Nuevo producto</button>
             )}
           </div>
           <div className="grid">

@@ -275,6 +275,8 @@ main.view{display:block;}
 .field input, .field select{padding:12px 14px;border-radius:var(--radius-sm);background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text-hi);font-size:13.5px;outline:none;backdrop-filter:blur(10px);}
 .field input:focus, .field select:focus{border-color:var(--accent-pink);}
 .field input::placeholder{color:var(--text-low);}
+.field select{color-scheme:dark;}
+.field select option{background:#1c0e2e;color:var(--text-hi);}
 
 .alta-confirm{background:var(--success-bg);border:1px solid rgba(63,214,147,0.3);border-radius:var(--radius-md);padding:22px 24px;backdrop-filter:blur(14px);}
 .alta-confirm h3{margin:0 0 10px;font-size:15px;color:var(--success);font-weight:800;}
