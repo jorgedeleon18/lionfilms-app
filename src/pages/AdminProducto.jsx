@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { subirFotoProducto } from '../lib/supabaseCatalog';
@@ -20,6 +20,8 @@ export default function AdminProducto() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const confirmTimer = useRef(null);
 
   useEffect(() => {
     if (!isNew && existing && !loaded) {
@@ -98,16 +100,25 @@ export default function AdminProducto() {
     }
   }
 
+  // Confirmación en dos pasos, sin el cartel feo del navegador: el primer
+  // click avisa, el segundo (dentro de los siguientes 4s) borra de verdad.
   async function handleDelete() {
     if (isNew) return;
-    const ok = window.confirm(`¿Borrar "${existing.name}" del catálogo? Esta acción no se puede deshacer.`);
-    if (!ok) return;
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      showToast('Tocá "Borrar producto" de nuevo para confirmar');
+      clearTimeout(confirmTimer.current);
+      confirmTimer.current = setTimeout(() => setConfirmDelete(false), 4000);
+      return;
+    }
+    clearTimeout(confirmTimer.current);
     try {
       await eliminarProducto(existing.id);
       showToast('Producto eliminado');
       navigate(`/listado/${form.cat}`);
     } catch (err) {
       showToast('Error al borrar: ' + (err.message || 'algo salió mal'));
+      setConfirmDelete(false);
     }
   }
 
@@ -194,7 +205,11 @@ export default function AdminProducto() {
 
           <div className="summary-actions">
             <button type="submit" className="btn btn-glass-success btn-block" disabled={saving || uploading}>{saving ? 'Guardando…' : isNew ? 'Crear producto' : 'Guardar cambios'}</button>
-            {!isNew && <button type="button" className="btn btn-glass-danger btn-block" onClick={handleDelete}>Borrar producto</button>}
+            {!isNew && (
+              <button type="button" className="btn btn-glass-danger btn-block" onClick={handleDelete}>
+                {confirmDelete ? '¿Seguro? Tocá de nuevo para borrar' : 'Borrar producto'}
+              </button>
+            )}
           </div>
         </form>
       </div>
