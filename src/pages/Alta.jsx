@@ -13,10 +13,10 @@ export default function Alta() {
   const [form, setForm] = useState({ nombre: '', apellido: '', dni: '', tel: '', dir: '', mail: '' });
   const [terms, setTerms] = useState(false);
 
-  function submit() {
+  async function submit() {
     if (!terms) { showToast('Tenés que aceptar las bases y condiciones'); return; }
     if (!form.nombre.trim() || !form.dni.trim()) { showToast('Completá al menos nombre y DNI'); return; }
-    registrarCliente({ ...form, nombre: form.nombre.trim(), dni: form.dni.trim() });
+    await registrarCliente({ ...form, nombre: form.nombre.trim(), dni: form.dni.trim() });
     showToast('¡Listo! Ya podés alquilar sin volver a registrarte 🎬');
     if (pendingReturnProductId) {
       const pid = pendingReturnProductId;

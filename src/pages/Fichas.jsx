@@ -15,11 +15,33 @@ function clientesAgrupados(reservations) {
 
 export default function Fichas() {
   const navigate = useNavigate();
-  const { reservations, marcarEstado, gabySession, getProduct } = useApp();
+  const { reservations, marcarEstado, gabySession, getProduct, clientes, clientesLoading } = useApp();
   const [tab, setTab] = useState('pedidos');
   const [search, setSearch] = useState('');
 
   const byDni = useMemo(() => clientesAgrupados(reservations), [reservations]);
+
+  // Todos los que se dieron de alta (tabla clientes en Supabase), con las
+  // estadísticas de pedidos que tenga cada uno — aunque todavía no haya
+  // alquilado nada. Si alguien quedó solo en las reservas viejas (de antes
+  // de tener esta tabla), también se lo suma para no perderlo de vista.
+  const clientesCompletos = useMemo(() => {
+    const map = new Map();
+    clientes.forEach((c) => map.set(c.dni, c));
+    Object.values(byDni).forEach((g) => {
+      if (!map.has(g.cliente.dni)) map.set(g.cliente.dni, g.cliente);
+    });
+    return Array.from(map.values()).map((cliente) => {
+      const g = byDni[cliente.dni];
+      const reservas = g ? g.reservas : [];
+      return {
+        cliente,
+        totalPedidos: reservas.length,
+        entregados: reservas.filter((x) => x.item.status === 'entregado').length,
+        pendientes: reservas.filter((x) => x.item.status === 'pendiente').length,
+      };
+    });
+  }, [clientes, byDni]);
 
   if (!gabySession) {
     return (
@@ -49,7 +71,7 @@ export default function Fichas() {
     marcarEstado(reservaId, itemIdx, 'no_disponible');
   }
 
-  const grupos = Object.values(byDni).filter((g) => {
+  const clientesFiltrados = clientesCompletos.filter((g) => {
     if (!search.trim()) return true;
     const term = search.trim().toLowerCase();
     const c = g.cliente;
@@ -65,7 +87,7 @@ export default function Fichas() {
           <div className="muted">
             {tab === 'pedidos'
               ? `${reservations.length} ${reservations.length === 1 ? 'pedido' : 'pedidos'}`
-              : `${Object.values(byDni).length} ${Object.values(byDni).length === 1 ? 'cliente registrado' : 'clientes registrados'}`}
+              : `${clientesCompletos.length} ${clientesCompletos.length === 1 ? 'cliente registrado' : 'clientes registrados'}`}
           </div>
         </div>
 
@@ -124,13 +146,13 @@ export default function Fichas() {
         ) : (
           <div>
             <input className="fichas-search" type="text" placeholder="Buscar por nombre, apellido o DNI…" value={search} onChange={(e) => setSearch(e.target.value)} />
-            {grupos.length === 0 ? (
-              <div className="empty-cart">{reservations.length === 0 ? 'Todavía no hay clientes registrados.' : 'No encontramos ningún cliente con ese nombre o DNI.'}</div>
+            {clientesLoading ? (
+              <div className="empty-cart">Cargando…</div>
+            ) : clientesFiltrados.length === 0 ? (
+              <div className="empty-cart">{clientesCompletos.length === 0 ? 'Todavía no hay clientes registrados.' : 'No encontramos ningún cliente con ese nombre o DNI.'}</div>
             ) : (
-              grupos.map((g) => {
+              clientesFiltrados.map((g) => {
                 const c = g.cliente;
-                const entregados = g.reservas.filter((x) => x.item.status === 'entregado').length;
-                const pendientes = g.reservas.filter((x) => x.item.status === 'pendiente').length;
                 return (
                   <div className="ficha-card" key={c.dni}>
                     <div className="ficha-card-head" style={{ borderBottom: 'none', paddingBottom: 0, marginBottom: 0 }}>
@@ -143,9 +165,9 @@ export default function Fichas() {
                           <span>Dirección <b>{c.dir || '—'}</b></span>
                         </div>
                         <div className="cliente-summary">
-                          <span><b>{g.reservas.length}</b> pedido{g.reservas.length === 1 ? '' : 's'} en total</span>
-                          <span><b>{entregados}</b> entregado{entregados === 1 ? '' : 's'}</span>
-                          <span><b>{pendientes}</b> pendiente{pendientes === 1 ? '' : 's'}</span>
+                          <span><b>{g.totalPedidos}</b> pedido{g.totalPedidos === 1 ? '' : 's'} en total</span>
+                          <span><b>{g.entregados}</b> entregado{g.entregados === 1 ? '' : 's'}</span>
+                          <span><b>{g.pendientes}</b> pendiente{g.pendientes === 1 ? '' : 's'}</span>
                         </div>
                       </div>
                     </div>

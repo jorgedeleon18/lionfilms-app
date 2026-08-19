@@ -6,6 +6,7 @@ import {
   crearCategoria, borrarCategoria,
   crearCombo, borrarCombo,
 } from '../lib/supabaseCatalog';
+import { fetchClientes, upsertCliente } from '../lib/supabaseClientes';
 
 const AppContext = createContext(null);
 
@@ -46,6 +47,8 @@ export function AppProvider({ children }) {
   const [products, setProducts] = useState([]);
   const [bundles, setBundles] = useState([]);
   const [catalogLoading, setCatalogLoading] = useState(true);
+  const [clientes, setClientes] = useState([]);
+  const [clientesLoading, setClientesLoading] = useState(true);
 
   const reloadCatalog = useCallback(async () => {
     const { categories: c, products: p, bundles: b } = await fetchCatalog();
@@ -56,6 +59,18 @@ export function AppProvider({ children }) {
   }, []);
 
   useEffect(() => { reloadCatalog(); }, [reloadCatalog]);
+
+  // Lista completa de clientes que se dieron de alta (tabla clientes en
+  // Supabase). Solo Gaby logueada puede leerla (RLS) — se recarga cuando
+  // inicia o cierra sesión.
+  const reloadClientes = useCallback(async () => {
+    setClientesLoading(true);
+    const c = await fetchClientes();
+    setClientes(c);
+    setClientesLoading(false);
+  }, []);
+
+  useEffect(() => { reloadClientes(); }, [reloadClientes, gabySession]);
 
   const catLabel = useCallback((catId) => {
     const c = categories.find((x) => x.id === catId);
@@ -181,10 +196,17 @@ export function AppProvider({ children }) {
   }, []);
   const clearCart = useCallback(() => setCart([]), []);
 
-  const registrarCliente = useCallback((data) => {
+  const registrarCliente = useCallback(async (data) => {
     setClienteData(data);
     setClienteRegistrado(true);
     setClienteActualDni(data.dni);
+    // Best-effort: si Supabase no está disponible o falla, el registro local
+    // (localStorage) igual funciona y el visitante puede seguir alquilando.
+    try {
+      await upsertCliente(data);
+    } catch (err) {
+      console.error('No se pudo guardar el cliente en Supabase', err);
+    }
   }, []);
   const editarRegistro = useCallback(() => setClienteRegistrado(false), []);
 
@@ -253,6 +275,7 @@ export function AppProvider({ children }) {
     savedCalState, setSavedCalState,
     drawerOpen, setDrawerOpen,
     categories, products, bundles, catalogLoading, catLabel, getProduct, reloadCatalog,
+    clientes, clientesLoading, reloadClientes,
     guardarProducto, eliminarProducto,
     guardarCategoria, eliminarCategoria,
     guardarCombo, eliminarCombo,
