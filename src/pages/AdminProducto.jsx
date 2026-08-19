@@ -113,7 +113,7 @@ export default function AdminProducto() {
 
   return (
     <main className="view active">
-      <a className="back-link" onClick={() => navigate(-1)}>← Volver</a>
+      <a className="back-link" onClick={() => navigate('/admin')}>← Volver al panel</a>
       <div className="alta-wrap" style={{ maxWidth: 720 }}>
         <div className="listado-head" style={{ marginTop: 10 }}>
           <h2 style={{ fontSize: 22, fontWeight: 800 }}>{isNew ? 'Nuevo producto' : `Editar — ${existing.name}`}</h2>

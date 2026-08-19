@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
 import Header from './components/Header';
 import CartDrawer from './components/CartDrawer';
@@ -18,10 +19,21 @@ import AdminCatalogo from './pages/AdminCatalogo';
 import AdminProducto from './pages/AdminProducto';
 import AdminPanel from './pages/AdminPanel';
 
+// Al cambiar de página, arranca siempre arriba del todo (evita que quede
+// el scroll heredado de la página anterior, que parecía "saltar" al final).
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <AppProvider>
+        <ScrollToTop />
         <Header />
         <Routes>
           <Route path="/" element={<Home />} />

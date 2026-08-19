@@ -85,7 +85,7 @@ export default function AdminCatalogo() {
 
   return (
     <main className="view active">
-      <a className="back-link" onClick={() => navigate('/')}>← Volver al catálogo</a>
+      <a className="back-link" onClick={() => navigate('/admin')}>← Volver al panel</a>
       <div className="alta-wrap" style={{ maxWidth: 900 }}>
         <div className="listado-head" style={{ marginTop: 10 }}>
           <h2 style={{ fontSize: 22, fontWeight: 800 }}>🗂️ Catálogo — Gaby</h2>

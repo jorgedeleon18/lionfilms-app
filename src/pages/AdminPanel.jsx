@@ -25,6 +25,7 @@ export default function AdminPanel() {
 
   return (
     <main className="view active">
+      <a className="back-link" onClick={() => navigate('/')}>← Volver al inicio</a>
       <div className="alta-wrap" style={{ maxWidth: 780 }}>
         <div className="listado-head" style={{ marginTop: 10 }}>
           <h2 style={{ fontSize: 22, fontWeight: 800 }}>🛠️ Panel de Gaby</h2>
