@@ -105,8 +105,14 @@ nav.nav-actions{display:flex;align-items:center;gap:12px;}
 /* ---------- views ---------- */
 main.view{display:block;}
 .container{max-width:1180px;margin:0 auto;padding:0 32px;}
-.back-link{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--text-mid);margin:26px 32px 0;text-transform:uppercase;letter-spacing:.4px;}
-.back-link:hover{color:var(--text-hi);}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--accent-orange);margin:26px 32px 0;text-transform:uppercase;letter-spacing:.4px;cursor:pointer;}
+.back-link:hover{color:var(--accent-pink);}
+
+/* botones "cristal" translúcidos, para acciones de confirmar/borrar sin ser invasivos */
+.btn-glass-success{background:rgba(63,214,147,0.14);color:var(--success);border:1px solid rgba(63,214,147,0.32);backdrop-filter:blur(14px);}
+.btn-glass-success:hover{background:rgba(63,214,147,0.22);}
+.btn-glass-danger{background:rgba(255,107,133,0.14);color:var(--danger);border:1px solid rgba(255,107,133,0.32);backdrop-filter:blur(14px);}
+.btn-glass-danger:hover{background:rgba(255,107,133,0.22);}
 
 /* home hero */
 .hero{padding:64px 32px 40px;text-align:center;max-width:720px;margin:0 auto;}

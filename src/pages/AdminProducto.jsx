@@ -193,8 +193,8 @@ export default function AdminProducto() {
           <button type="button" className="btn btn-sm btn-outline" onClick={addSpec} style={{ marginBottom: 24 }}>+ Agregar característica</button>
 
           <div className="summary-actions">
-            <button type="submit" className="btn btn-navy btn-block" disabled={saving || uploading}>{saving ? 'Guardando…' : isNew ? 'Crear producto' : 'Guardar cambios'}</button>
-            {!isNew && <button type="button" className="btn btn-ghost btn-block" onClick={handleDelete}>Borrar producto</button>}
+            <button type="submit" className="btn btn-glass-success btn-block" disabled={saving || uploading}>{saving ? 'Guardando…' : isNew ? 'Crear producto' : 'Guardar cambios'}</button>
+            {!isNew && <button type="button" className="btn btn-glass-danger btn-block" onClick={handleDelete}>Borrar producto</button>}
           </div>
         </form>
       </div>
