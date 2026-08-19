@@ -55,6 +55,18 @@ export async function fetchCatalog() {
   return { categories, products, bundles };
 }
 
+export async function subirFotoProducto(file) {
+  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+  const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const { error } = await supabase.storage.from('productos').upload(path, file, {
+    cacheControl: '3600',
+    upsert: false,
+  });
+  if (error) throw error;
+  const { data } = supabase.storage.from('productos').getPublicUrl(path);
+  return data.publicUrl;
+}
+
 export async function crearProducto(data) {
   const { specs, ...producto } = data;
   const { data: inserted, error } = await supabase.from('productos').insert(producto).select().single();

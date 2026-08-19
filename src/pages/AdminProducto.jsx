@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { subirFotoProducto } from '../lib/supabaseCatalog';
 
 const emptyForm = {
   cat: '', name: '', sub: '', descripcion: '', priceNum: '', originalPriceNum: '',
@@ -17,6 +18,8 @@ export default function AdminProducto() {
   const [form, setForm] = useState(emptyForm);
   const [loaded, setLoaded] = useState(isNew);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
 
   useEffect(() => {
     if (!isNew && existing && !loaded) {
@@ -56,6 +59,22 @@ export default function AdminProducto() {
   }
   function removeSpec(idx) {
     setForm((f) => ({ ...f, specs: f.specs.filter((_, i) => i !== idx) }));
+  }
+
+  async function handleFileChange(e) {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // permite volver a elegir el mismo archivo si hace falta
+    if (!file) return;
+    setUploadError('');
+    setUploading(true);
+    try {
+      const url = await subirFotoProducto(file);
+      setField('img', url);
+    } catch (err) {
+      setUploadError('No se pudo subir la foto: ' + (err.message || 'algo salió mal'));
+    } finally {
+      setUploading(false);
+    }
   }
 
   async function handleSave(e) {
@@ -149,11 +168,19 @@ export default function AdminProducto() {
 
           <div className="field-row">
             <div className="field">
-              <label>URL de foto (opcional)</label>
-              <input value={form.img} onChange={(e) => setField('img', e.target.value)} placeholder="https://…" />
+              <label>Foto del producto</label>
+              {form.img && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+                  <img src={form.img} alt="" style={{ width: 64, height: 64, objectFit: 'contain', borderRadius: 8, background: 'rgba(255,255,255,0.06)', padding: 4 }} />
+                  <button type="button" className="btn btn-sm btn-ghost" onClick={() => setField('img', '')}>Quitar foto</button>
+                </div>
+              )}
+              <input type="file" accept="image/*" onChange={handleFileChange} disabled={uploading} />
+              {uploading && <p className="ficha-note" style={{ marginBottom: 0 }}>Subiendo foto…</p>}
+              {uploadError && <p className="ficha-note" style={{ color: '#ff8080', marginBottom: 0 }}>{uploadError}</p>}
             </div>
           </div>
-          <p className="ficha-note" style={{ marginTop: -8, marginBottom: 18 }}>Si lo dejás vacío, se muestra el ícono de la categoría. Para subir una foto propia, mandásela a Jorge por ahora — la carga de imágenes directa es un paso que falta armar.</p>
+          <p className="ficha-note" style={{ marginTop: -8, marginBottom: 18 }}>Si no subís ninguna, se muestra el ícono de la categoría.</p>
 
           <div style={{ marginBottom: 8, fontSize: 13, fontWeight: 700, color: 'var(--text-hi)' }}>Ficha técnica</div>
           {form.specs.map((s, idx) => (
@@ -166,7 +193,7 @@ export default function AdminProducto() {
           <button type="button" className="btn btn-sm btn-outline" onClick={addSpec} style={{ marginBottom: 24 }}>+ Agregar característica</button>
 
           <div className="summary-actions">
-            <button type="submit" className="btn btn-navy btn-block" disabled={saving}>{saving ? 'Guardando…' : isNew ? 'Crear producto' : 'Guardar cambios'}</button>
+            <button type="submit" className="btn btn-navy btn-block" disabled={saving || uploading}>{saving ? 'Guardando…' : isNew ? 'Crear producto' : 'Guardar cambios'}</button>
             {!isNew && <button type="button" className="btn btn-ghost btn-block" onClick={handleDelete}>Borrar producto</button>}
           </div>
         </form>
