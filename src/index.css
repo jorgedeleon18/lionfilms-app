@@ -216,19 +216,19 @@ main.view{display:block;}
 .product-desc p{font-size:13.5px;color:var(--text-mid);line-height:1.7;margin:0 0 14px;}
 
 .booking-card{
-  width:100%;max-width:330px;border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;
+  width:100%;max-width:300px;border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;
   position:sticky;top:96px;background:rgba(28,16,46,0.96);backdrop-filter:blur(8px);box-shadow:0 20px 50px rgba(0,0,0,0.35);
 }
-.booking-card h4{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;margin:0 0 16px;color:#fff;}
+.booking-card h4{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;margin:0 0 10px;color:#fff;}
 
 .gate-notice{
-  background:var(--warn-bg);border:1px solid rgba(255,182,72,0.3);border-radius:var(--radius-md);padding:14px 16px;margin-bottom:16px;
+  background:var(--warn-bg);border:1px solid rgba(255,182,72,0.3);border-radius:var(--radius-md);padding:10px 12px;margin-bottom:10px;
 }
-.gate-notice p{font-size:12.5px;color:var(--warn);margin:0 0 10px;line-height:1.5;}
+.gate-notice p{font-size:11.5px;color:var(--warn);margin:0 0 8px;line-height:1.4;}
 
 /* ---------- calendar ---------- */
-.cal-wrap{margin-bottom:16px;}
-.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.cal-wrap{margin-bottom:8px;}
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
 .cal-title{font-size:13.5px;font-weight:800;text-transform:capitalize;color:#fff;}
 .cal-nav{
   width:28px;height:28px;border-radius:999px;display:flex;align-items:center;justify-content:center;
@@ -245,17 +245,17 @@ main.view{display:block;}
 .cal-clickable:hover{transform:scale(1.08);}
 .cal-selected-start,.cal-selected-end{background:linear-gradient(120deg, var(--accent-orange), var(--accent-pink)) !important;color:#fff !important;border-color:transparent !important;}
 .cal-in-range{background:rgba(255,138,61,0.28) !important;color:#ffcfa3 !important;border-color:transparent !important;}
-.cal-legend{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap;}
-.cal-legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-mid);}
-.cal-legend-dot{width:9px;height:9px;border-radius:3px;}
-.cal-range-label{margin-top:12px;padding:10px 13px;border-radius:var(--radius-sm);font-size:12.5px;background:var(--bg-soft);border:1px solid var(--border);color:var(--text-mid);}
+.cal-legend{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;}
+.cal-legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-mid);}
+.cal-legend-dot{width:8px;height:8px;border-radius:3px;}
+.cal-range-label{margin-top:8px;padding:8px 11px;border-radius:var(--radius-sm);font-size:11.5px;background:var(--bg-soft);border:1px solid var(--border);color:var(--text-mid);}
 .cal-range-label b{color:var(--text-hi);}
 .cal-admin-note{font-size:12.5px;color:var(--text-mid);line-height:1.6;margin-bottom:16px;background:var(--bg-soft);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px 16px;}
 
-.qty-row{display:flex;align-items:center;gap:12px;margin:16px 0;}
-.qty-btn{width:30px;height:30px;border-radius:999px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;font-weight:800;border:1px solid var(--border);background:var(--bg-soft);color:var(--text-hi);}
+.qty-row{display:flex;align-items:center;gap:10px;margin:10px 0;}
+.qty-btn{width:26px;height:26px;border-radius:999px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;font-weight:800;border:1px solid var(--border);background:var(--bg-soft);color:var(--text-hi);}
 .qty-btn:hover{background:rgba(255,255,255,0.14);}
-.booking-price{font-size:19px;font-weight:800;margin-left:auto;color:#fff;}
+.booking-price{font-size:16px;font-weight:800;margin-left:auto;color:#fff;}
 
 /* ---------- alta de clientes ---------- */
 .alta-wrap{max-width:640px;margin:0 auto;padding:40px 32px 80px;}

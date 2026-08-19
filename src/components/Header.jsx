@@ -42,7 +42,7 @@ export default function Header() {
           </div>
           {mode === 'admin' && (
             <div className="nav-icon-btn nav-icon-btn-staff" onClick={() => navigate('/admin')}>
-              🛠️ Panel Staff
+              <img src={lionHead} alt="" style={{ width: 15, height: 15 }} /> Panel Staff
               {pendingCount > 0 && <span className="badge-count">{pendingCount}</span>}
             </div>
           )}

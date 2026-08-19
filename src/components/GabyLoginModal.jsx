@@ -33,8 +33,8 @@ export default function GabyLoginModal() {
         </div>
         {gabyLoginError && <p style={{ color: '#ff8080', fontSize: 12.5, marginBottom: 12 }}>{gabyLoginError}</p>}
         <div style={{ display: 'flex', gap: 10, marginTop: 6 }}>
-          <button type="button" className="btn-ghost" onClick={() => setGabyLoginOpen(false)}>Cancelar</button>
-          <button type="submit" className="btn-navy" disabled={gabyLoginLoading}>{gabyLoginLoading ? 'Entrando…' : 'Entrar'}</button>
+          <button type="button" className="btn btn-ghost" onClick={() => setGabyLoginOpen(false)}>Cancelar</button>
+          <button type="submit" className="btn btn-gradient" disabled={gabyLoginLoading}>{gabyLoginLoading ? 'Entrando…' : 'Entrar'}</button>
         </div>
       </form>
     </div>
