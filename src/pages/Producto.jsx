@@ -98,6 +98,10 @@ export default function Producto() {
             <h3>Descripción</h3>
             <p>{p.descripcion || p.sub}</p>
             <p>Equipo revisado y testeado antes de cada entrega — coordinamos con vos el retiro y la devolución una vez confirmada la reserva.</p>
+            <h3 style={{ marginTop: 26 }}>Ficha técnica</h3>
+            <ul className="product-bullets">
+              {p.specs.map((s) => <li key={s[0]}><b>{s[0]}:</b> {s[1]}</li>)}
+            </ul>
           </div>
         </div>
         <div className="product-col-right">
@@ -110,12 +114,6 @@ export default function Producto() {
               <li>Precio con descuento por semana y por mes — consultá por WhatsApp.</li>
               <li>Descuentos especiales para estudiantes de carreras audiovisuales.</li>
               <li><b>{p.sub}</b></li>
-            </ul>
-          </div>
-          <div className="product-desc">
-            <h3>Ficha técnica</h3>
-            <ul className="product-bullets">
-              {p.specs.map((s) => <li key={s[0]}><b>{s[0]}:</b> {s[1]}</li>)}
             </ul>
           </div>
           <div className="booking-card">
