@@ -36,8 +36,12 @@ export async function upsertCliente(data) {
     mail: data.mail || null,
     dir: data.dir || null,
   };
-  // Inserta si el DNI es nuevo; si ya existe, no hace nada (no pisa datos).
-  // Solo Gaby logueada puede corregir un registro existente (ver RLS).
-  const { error } = await supabase.from('clientes').upsert(row, { onConflict: 'dni', ignoreDuplicates: true });
-  if (error) throw error;
+  // Insert simple (no upsert/on-conflict): un "on conflict" necesita que
+  // Postgres pueda LEER la fila existente para detectar el choque, y esa
+  // lectura está bloqueada para el público (a propósito, así nadie ve la
+  // lista de clientes) — eso hacía fallar hasta los DNI nuevos. Con un
+  // insert directo, si el DNI ya existe, Postgres tira un error de
+  // "duplicado" (23505) que simplemente ignoramos: no pisa datos de nadie.
+  const { error } = await supabase.from('clientes').insert(row);
+  if (error && error.code !== '23505') throw error;
 }
