@@ -4,7 +4,7 @@ import {
   fetchCatalog,
   crearProducto, actualizarProducto, borrarProducto,
   crearCategoria, borrarCategoria, actualizarCategoria,
-  crearCombo, borrarCombo, actualizarComboImagen, subirFotoProducto,
+  crearCombo, borrarCombo, actualizarComboImagenes, subirFotoProducto, MAX_FOTOS_COMBO,
 } from '../lib/supabaseCatalog';
 import { fetchClientes, upsertCliente, reconocerCliente } from '../lib/supabaseClientes';
 import {
@@ -210,17 +210,29 @@ export function AppProvider({ children }) {
       fecha_hasta: form.to || null,
       items: form.items,
     };
-    if (form.img) fila.imagen_url = form.img;
+    if (form.imgs && form.imgs.length) { fila.imagenes = form.imgs; fila.imagen_url = form.imgs[0]; }
     await crearCombo(fila);
     await reloadCatalog();
   }, [reloadCatalog]);
 
   // Agrega o cambia la foto de un combo que ya existe (sube el archivo y lo guarda).
-  const cambiarFotoCombo = useCallback(async (id, file) => {
-    const url = await subirFotoProducto(file);
-    await actualizarComboImagen(id, url);
+  const agregarFotosCombo = useCallback(async (id, files) => {
+    const combo = bundles.find((b) => b.id === id);
+    const actuales = combo ? combo.imgs : [];
+    const lugar = MAX_FOTOS_COMBO - actuales.length;
+    if (lugar <= 0) throw new Error('Un combo puede tener hasta ' + MAX_FOTOS_COMBO + ' fotos');
+    const nuevas = [];
+    for (const f of Array.from(files).slice(0, lugar)) nuevas.push(await subirFotoProducto(f));
+    await actualizarComboImagenes(id, [...actuales, ...nuevas]);
     await reloadCatalog();
-  }, [reloadCatalog]);
+  }, [bundles, reloadCatalog]);
+
+  const quitarFotoCombo = useCallback(async (id, url) => {
+    const combo = bundles.find((b) => b.id === id);
+    if (!combo) return;
+    await actualizarComboImagenes(id, combo.imgs.filter((u) => u !== url));
+    await reloadCatalog();
+  }, [bundles, reloadCatalog]);
 
   const eliminarCombo = useCallback(async (id) => {
     await borrarCombo(id);
@@ -394,7 +406,7 @@ export function AppProvider({ children }) {
     clientes, clientesLoading, reloadClientes, clientesNuevos, clientesVistosAt, marcarClientesVistos,
     guardarProducto, eliminarProducto,
     guardarCategoria, editarCategoria, eliminarCategoria,
-    guardarCombo, cambiarFotoCombo, eliminarCombo,
+    guardarCombo, agregarFotosCombo, quitarFotoCombo, eliminarCombo,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

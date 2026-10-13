@@ -513,6 +513,20 @@ footer{padding:44px 32px 60px;text-align:center;color:var(--text-low);font-size:
 /* Foto de los combos */
 .promo-card .promo-photo{margin:-22px -22px 16px;height:170px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;overflow:hidden;}
 .promo-card .promo-photo img{width:100%;height:100%;object-fit:contain;display:block;}
+.promo-card .promo-photo{position:relative;}
+.promo-nav{position:absolute;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;border:none;background:rgba(0,0,0,.55);color:#fff;font-size:20px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0 0 3px;}
+.promo-nav:hover{background:rgba(0,0,0,.8);}
+.promo-nav.prev{left:8px;}
+.promo-nav.next{right:8px;}
+.promo-dots{position:absolute;left:0;right:0;bottom:8px;display:flex;justify-content:center;gap:6px;}
+.promo-dots span{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.5);cursor:pointer;}
+.promo-dots span.on{background:#fff;}
+.combo-admin{border-bottom:1px solid var(--border,rgba(128,128,128,.2));padding-bottom:10px;margin-bottom:10px;}
+.combo-fotos{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 0;}
+.combo-foto{position:relative;width:74px;height:74px;border-radius:8px;overflow:hidden;background:rgba(128,128,128,.15);}
+.combo-foto img{width:100%;height:100%;object-fit:cover;display:block;}
+.combo-foto-x{position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;border:none;background:rgba(0,0,0,.7);color:#fff;font-size:14px;line-height:1;cursor:pointer;padding:0 0 2px;}
+.combo-foto-portada{position:absolute;left:0;right:0;bottom:0;background:rgba(0,0,0,.65);color:#fff;font-size:9.5px;text-align:center;padding:2px 0;font-weight:700;letter-spacing:.4px;text-transform:uppercase;}
 .combo-thumb{overflow:hidden;}
 .combo-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
 

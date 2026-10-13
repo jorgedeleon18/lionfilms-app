@@ -4,6 +4,8 @@ import { supabase } from '../supabaseClient';
    Traduce entre las columnas en español de la base y la forma que ya usaba
    la app (name, sub, price, priceNum, cat, specs: [[etiqueta,valor],...], etc.) */
 
+export const MAX_FOTOS_COMBO = 6;
+
 function productoToApp(row, categoriaIcon) {
   return {
     id: row.id,
@@ -52,7 +54,9 @@ export async function fetchCatalog() {
     id: b.id,
     name: b.nombre,
     priceNum: Number(b.precio_num),
-    img: b.imagen_url || null,
+    // Hasta 6 fotos; si todavía no se corrió el SQL nuevo, se usa la foto única de antes.
+    imgs: Array.isArray(b.imagenes) && b.imagenes.length ? b.imagenes : (b.imagen_url ? [b.imagen_url] : []),
+    img: (Array.isArray(b.imagenes) && b.imagenes[0]) || b.imagen_url || null,
     from: b.fecha_desde,
     to: b.fecha_hasta,
     items: (b.combo_items || []).map((i) => i.producto_id),
@@ -166,8 +170,8 @@ export async function crearCombo(data) {
   return inserted.id;
 }
 
-export async function actualizarComboImagen(id, url) {
-  const { error } = await supabase.from('combos').update({ imagen_url: url }).eq('id', id);
+export async function actualizarComboImagenes(id, urls) {
+  const { error } = await supabase.from('combos').update({ imagenes: urls, imagen_url: urls[0] || null }).eq('id', id);
   if (error) throw error;
 }
 

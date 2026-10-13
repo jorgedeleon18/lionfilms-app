@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { money } from '../utils';
@@ -5,6 +6,31 @@ import ProductMedia from '../components/ProductMedia';
 import CatalogStatus from '../components/CatalogStatus';
 import lionHead from '../assets/lion-head.png';
 import lionLogoColor from '../assets/lion-logo-color.png';
+
+// Fotos del combo: una sola se muestra fija; con varias, flechitas y puntos para pasarlas.
+// Los clics se frenan para que no cuenten como "agregar el combo al pedido".
+export function PromoGallery({ imgs, name }) {
+  const [i, setI] = useState(0);
+  const n = imgs.length;
+  const idx = Math.min(i, n - 1);
+  const go = (d) => (e) => { e.stopPropagation(); setI((idx + d + n) % n); };
+  return (
+    <div className="promo-photo">
+      <img src={imgs[idx]} alt={name} draggable="false" />
+      {n > 1 && (
+        <>
+          <button type="button" className="promo-nav prev" aria-label="Foto anterior" onClick={go(-1)}>‹</button>
+          <button type="button" className="promo-nav next" aria-label="Foto siguiente" onClick={go(1)}>›</button>
+          <div className="promo-dots">
+            {imgs.map((u, k) => (
+              <span key={u} className={k === idx ? 'on' : ''} onClick={(e) => { e.stopPropagation(); setI(k); }} />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 export default function Home() {
   const navigate = useNavigate();
@@ -45,7 +71,7 @@ export default function Home() {
             return (
               <div className="promo-card" key={b.id} onClick={() => addBundleToCart(b)}>
                 <span className="promo-badge">Promo</span>
-                {b.img && <div className="promo-photo"><img src={b.img} alt={b.name} draggable="false" /></div>}
+                {b.imgs && b.imgs.length > 0 && <PromoGallery imgs={b.imgs} name={b.name} />}
                 <h4>{b.name}</h4>
                 <div className="promo-items">{items.map((p) => `${p.icon} ${p.name}`).join('  +  ')}</div>
                 <div className="promo-price">
