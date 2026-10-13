@@ -4,11 +4,11 @@ import { useLocation } from 'react-router-dom';
 import { TERMS } from '../lib/condiciones';
 
 const STEPS = [
-  { n: 1, title: 'Elegís el equipo', body: 'Recorré el listado por categoría — cámaras, lentes, trípodes, luces, audio o accesorios — y mirá specs, fotos y precio de referencia.' },
-  { n: 2, title: 'Marcás las fechas', body: 'En cada producto vas a ver un calendario con los días disponibles en verde. Elegís retiro y devolución, y sumás todo lo que necesites al carrito.' },
-  { n: 3, title: 'Te registrás (solo la primera vez)', body: 'Antes de mandar tu primer pedido completás la Alta de Clientes con tus datos. De ahí en adelante no te lo vuelve a pedir.' },
-  { n: 4, title: 'Enviás el pedido', body: 'Desde el carrito lo mandás por WhatsApp o mail. Gaby lo recibe, confirma disponibilidad y coordina con vos el pago y la entrega — todo eso queda fuera de la web.' },
-  { n: 5, title: 'Retirás el equipo', body: 'Coordinás día y horario de retiro y devolución directamente con Gaby.' },
+  { n: 1, title: 'Selección de equipos', body: 'Explorá el catálogo por categoría: cámaras, lentes, trípodes, iluminación, audio y accesorios. Consultá las especificaciones técnicas, las imágenes y los precios de referencia de cada producto.' },
+  { n: 2, title: 'Selección de fechas', body: 'Verificá la disponibilidad en el calendario de cada equipo. Seleccioná las fechas de retiro y devolución, y agregá al carrito todos los elementos que necesites para tu producción.' },
+  { n: 3, title: 'Registro de clientes', body: 'Antes de realizar el primer pedido, completá el formulario de Alta de Clientes con tus datos. Una vez registrado, no será necesario repetir este paso en futuras solicitudes.' },
+  { n: 4, title: 'Solicitud de alquiler', body: 'Enviá tu solicitud desde el carrito por WhatsApp o correo electrónico. El equipo de Lion Rental verificará la disponibilidad y se pondrá en contacto para confirmar la reserva, coordinar el pago y establecer las condiciones de entrega.' },
+  { n: 5, title: 'Retiro y devolución', body: 'Una vez confirmada la reserva, se coordinarán los días y horarios de retiro y devolución del equipo. Ambas instancias se realizarán de acuerdo con las condiciones previamente acordadas.' },
 ];
 
 
@@ -24,7 +24,7 @@ export default function ComoAlquilar() {
       <div className="page-shell">
         <div className="side-watermark"><img src={lionLogoColor} alt="" /></div>
         <div className="info-page">
-          <h1>¿Cómo alquilar en Lion Films?</h1>
+          <h1>¿Cómo alquilar en Lion Rental?</h1>
           {STEPS.map((s) => (
             <div className="step-item" key={s.n}>
               <div className="step-num">{s.n}</div>
