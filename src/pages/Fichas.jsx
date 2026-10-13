@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { fmtKey, rentalDays, money, STATUS_LABEL } from '../utils';
@@ -15,9 +15,16 @@ function clientesAgrupados(reservations) {
 
 export default function Fichas() {
   const navigate = useNavigate();
-  const { reservations, marcarEstado, gabySession, getProduct, clientes, clientesLoading } = useApp();
+  const { reservations, marcarEstado, gabySession, getProduct, clientes, clientesLoading, clientesNuevos, clientesVistosAt, marcarClientesVistos } = useApp();
+  // Foto de lo último visto al entrar, para marcar los clientes nuevos aunque el cartelito ya se limpie.
+  const [vistosAlEntrar] = useState(clientesVistosAt);
   const [tab, setTab] = useState('pedidos');
   const [search, setSearch] = useState('');
+
+  // Al abrir "Clientes registrados" se da por vistos los clientes nuevos.
+  useEffect(() => {
+    if (tab === 'clientes' && !clientesLoading && clientes.length > 0) marcarClientesVistos();
+  }, [tab, clientesLoading, clientes, marcarClientesVistos]);
 
   const byDni = useMemo(() => clientesAgrupados(reservations), [reservations]);
 
@@ -93,7 +100,7 @@ export default function Fichas() {
 
         <div className="fichas-tabs">
           <div className={`fichas-tab${tab === 'pedidos' ? ' active' : ''}`} onClick={() => setTab('pedidos')}>Pedidos</div>
-          <div className={`fichas-tab${tab === 'clientes' ? ' active' : ''}`} onClick={() => setTab('clientes')}>Clientes registrados</div>
+          <div className={`fichas-tab${tab === 'clientes' ? ' active' : ''}`} onClick={() => setTab('clientes')}>Clientes registrados{clientesNuevos > 0 && tab !== 'clientes' && <span className="staff-pending staff-new" style={{ marginLeft: 8 }}>{clientesNuevos}</span>}</div>
         </div>
 
         {tab === 'pedidos' ? (
@@ -157,7 +164,7 @@ export default function Fichas() {
                   <div className="ficha-card" key={c.dni}>
                     <div className="ficha-card-head" style={{ borderBottom: 'none', paddingBottom: 0, marginBottom: 0 }}>
                       <div>
-                        <p className="ficha-name">{c.nombre} {c.apellido}</p>
+                        <p className="ficha-name">{c.nombre} {c.apellido}{c.createdAt && (!vistosAlEntrar || new Date(c.createdAt) > new Date(vistosAlEntrar)) && <span className="pill-nuevo">Nuevo</span>}</p>
                         <div className="ficha-meta">
                           <span>DNI <b>{c.dni}</b></span>
                           <span>Tel <b>{c.tel || '—'}</b></span>

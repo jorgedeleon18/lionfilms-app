@@ -75,6 +75,8 @@ export function AppProvider({ children }) {
   const [catalogError, setCatalogError] = useState(false);
   const [clientes, setClientes] = useState([]);
   const [clientesLoading, setClientesLoading] = useState(true);
+  // Hasta qué registro de cliente ya vio Gaby (para el cartelito de "clientes nuevos").
+  const [clientesVistosAt, setClientesVistosAt] = useState(() => load('lf_clientes_vistos', null));
 
   // Si Supabase falla (corte, red lenta) reintenta solo un par de veces antes
   // de avisar; así un tropiezo momentáneo no deja la pantalla vacía.
@@ -125,17 +127,17 @@ export function AppProvider({ children }) {
     function onVisible() {
       if (document.visibilityState !== 'visible') return;
       reloadBloqueos();
-      if (gabySession) reloadReservas();
+      if (gabySession) { reloadReservas(); reloadClientes(true); }
     }
     document.addEventListener('visibilitychange', onVisible);
     return () => document.removeEventListener('visibilitychange', onVisible);
-  }, [gabySession, reloadBloqueos, reloadReservas]);
+  }, [gabySession, reloadBloqueos, reloadReservas, reloadClientes]);
 
   // Lista completa de clientes que se dieron de alta (tabla clientes en
   // Supabase). Solo Gaby logueada puede leerla (RLS) — se recarga cuando
   // inicia o cierra sesión.
-  const reloadClientes = useCallback(async () => {
-    setClientesLoading(true);
+  const reloadClientes = useCallback(async (silent = false) => {
+    if (!silent) setClientesLoading(true);
     const c = await fetchClientes();
     setClientes(c);
     setClientesLoading(false);
@@ -263,6 +265,7 @@ export function AppProvider({ children }) {
   }, []);
 
   useEffect(() => save('lf_cart', cart), [cart]);
+  useEffect(() => save('lf_clientes_vistos', clientesVistosAt), [clientesVistosAt]);
   useEffect(() => save('lf_cliente_reg', clienteRegistrado), [clienteRegistrado]);
   useEffect(() => save('lf_cliente_data', clienteData), [clienteData]);
   useEffect(() => save('lf_cliente_dni', clienteActualDni), [clienteActualDni]);
@@ -363,6 +366,14 @@ export function AppProvider({ children }) {
     }
   }, [reservations, showToast]);
 
+  // Clientes registrados después de lo último que Gaby vio. Se compara contra la
+  // fecha del propio registro (no contra el reloj del celular), así no se desfasa.
+  const clientesNuevos = clientes.filter((c) => !clientesVistosAt || new Date(c.createdAt) > new Date(clientesVistosAt)).length;
+  const marcarClientesVistos = useCallback(() => {
+    const ultimo = clientes.reduce((max, c) => (c.createdAt && (!max || c.createdAt > max) ? c.createdAt : max), null);
+    if (ultimo) setClientesVistosAt(ultimo);
+  }, [clientes]);
+
   const pendingCount = reservations.reduce((n, r) => n + r.items.filter((i) => i.status === 'pendiente').length, 0);
 
   const value = {
@@ -379,7 +390,7 @@ export function AppProvider({ children }) {
     savedCalState, setSavedCalState,
     drawerOpen, setDrawerOpen,
     categories, products, bundles, catalogLoading, catalogError, retryCatalog, catLabel, getProduct, reloadCatalog,
-    clientes, clientesLoading, reloadClientes,
+    clientes, clientesLoading, reloadClientes, clientesNuevos, clientesVistosAt, marcarClientesVistos,
     guardarProducto, eliminarProducto,
     guardarCategoria, editarCategoria, eliminarCategoria,
     guardarCombo, cambiarFotoCombo, eliminarCombo,

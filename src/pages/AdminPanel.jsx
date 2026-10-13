@@ -10,7 +10,7 @@ const ITEMS = [
 
 export default function AdminPanel() {
   const navigate = useNavigate();
-  const { gabySession, pendingCount, logoutGaby } = useApp();
+  const { gabySession, pendingCount, clientesNuevos, logoutGaby } = useApp();
 
   if (!gabySession) {
     return (
@@ -39,7 +39,8 @@ export default function AdminPanel() {
               <div className="staff-card-body">
                 <h4>
                   {it.title}
-                  {it.showPending && pendingCount > 0 && <span className="staff-pending">{pendingCount}</span>}
+                  {it.showPending && pendingCount > 0 && <span className="staff-pending" title="Pedidos pendientes">{pendingCount}</span>}
+                  {it.showPending && clientesNuevos > 0 && <span className="staff-pending staff-new" title="Clientes nuevos">{clientesNuevos} {clientesNuevos === 1 ? 'cliente nuevo' : 'clientes nuevos'}</span>}
                 </h4>
                 <p>{it.desc}</p>
               </div>

@@ -6,7 +6,7 @@ import lionHead from '../assets/lion-head.png';
 
 export default function Header() {
   const navigate = useNavigate();
-  const { mode, cart, pendingCount, setDrawerOpen, logoutGaby, categories } = useApp();
+  const { mode, cart, pendingCount, clientesNuevos, setDrawerOpen, logoutGaby, categories } = useApp();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const cartQty = cart.reduce((n, i) => n + i.qty, 0);
   const grupos = agruparCategorias(categories);
@@ -51,7 +51,7 @@ export default function Header() {
           {mode === 'admin' && (
             <div className="nav-icon-btn nav-icon-btn-staff" onClick={() => navigate('/admin')}>
               <img src={lionHead} alt="" style={{ width: 15, height: 15 }} /> Panel Staff
-              {pendingCount > 0 && <span className="badge-count">{pendingCount}</span>}
+              {pendingCount + clientesNuevos > 0 && <span className="badge-count">{pendingCount + clientesNuevos}</span>}
             </div>
           )}
           {mode !== 'admin' && (
