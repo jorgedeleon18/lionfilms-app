@@ -451,12 +451,17 @@ footer{padding:44px 32px 60px;text-align:center;color:var(--text-low);font-size:
 }
 
 /* Bases y condiciones */
-.terms-box{margin-top:34px;border:1px solid var(--border);border-radius:var(--radius-md);background:rgba(255,255,255,0.03);backdrop-filter:blur(14px);overflow:hidden;}
-.terms-box > summary{cursor:pointer;list-style:none;padding:16px 20px;font-size:15px;font-weight:800;color:var(--accent-orange);display:flex;align-items:center;justify-content:space-between;gap:10px;}
-.terms-box > summary::-webkit-details-marker{display:none;}
-.terms-box > summary::after{content:'+';font-size:22px;line-height:1;}
-.terms-box[open] > summary::after{content:'–';}
-.terms-list{padding:4px 20px 18px;display:flex;flex-direction:column;gap:14px;}
-.terms-list h5{font-size:13.5px;font-weight:800;margin:0 0 3px;color:var(--text-hi);}
-.terms-list p{font-size:13px;line-height:1.55;margin:0;color:var(--text-mid, rgba(255,255,255,0.75));}
-.terms-note{padding:0 20px 18px;font-size:12px;opacity:.7;}
+.cond-box{margin-top:34px;border:1px solid var(--border);border-radius:var(--radius-md);background:rgba(255,255,255,0.03);backdrop-filter:blur(14px);overflow:hidden;}
+.cond-box > summary{cursor:pointer;list-style:none;padding:16px 20px;font-size:15px;font-weight:800;color:var(--accent-orange);display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.cond-box > summary::-webkit-details-marker{display:none;}
+.cond-box > summary::after{content:'+';font-size:22px;line-height:1;}
+.cond-box[open] > summary::after{content:'–';}
+.cond-list{padding:4px 20px 18px;display:flex;flex-direction:column;gap:14px;}
+.cond-list h5{font-size:13.5px;font-weight:800;margin:0 0 3px;color:var(--text-hi);}
+.cond-list p{font-size:13px;line-height:1.55;margin:0;color:var(--text-mid, rgba(255,255,255,0.75));}
+.cond-note{padding:0 20px 18px;font-size:12px;opacity:.7;}
+
+.terms-scroll{max-height:240px;}
+.terms-scroll h5{font-size:12.5px;font-weight:800;margin:0 0 2px;color:var(--text-hi);}
+.terms-scroll p{margin:0 0 12px;}
+.terms-link{color:var(--accent-orange);font-weight:700;text-decoration:underline;}

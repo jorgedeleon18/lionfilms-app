@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { TERMS } from '../lib/condiciones';
 import lionLogoColor from '../assets/lion-logo-color.png';
 
 export default function Alta() {
@@ -64,12 +65,18 @@ export default function Alta() {
         <div className="side-watermark"><img src={lionLogoColor} alt="" /></div>
         <div className="alta-inner">
           <h1>Alta de clientes</h1>
-          <p className="alta-sub">Bases y condiciones + registro. Se completa una sola vez — después ya podés alquilar sin volver a cargar tus datos.</p>
-          <div className="terms-box">
-            <p><b>Bases y condiciones de alquiler — Lion Films.</b> El equipo se entrega en el estado indicado en la ficha técnica y debe devolverse en las mismas condiciones. Cualquier daño o faltante se conversa y se cotiza por fuera de la app.</p>
-            <p>La reserva no queda confirmada hasta que Gaby la confirma por WhatsApp o mail luego de recibir el pedido. Las fechas se liberan automáticamente si la reserva no se concreta.</p>
-            <p>Los precios son de referencia y pueden tener descuento por semana, por mes, o para estudiantes de carreras audiovisuales — se confirma en la cotización.</p>
+          <p className="alta-sub">Leé las bases y condiciones y completá tu registro. Se completa una sola vez — después ya podés alquilar sin volver a cargar tus datos.</p>
+          <div className="terms-box terms-scroll" tabIndex={0}>
+            {TERMS.map(([t, b], i) => (
+              <div key={t}>
+                <h5>{String(i + 1).padStart(2, '0')}. {t}</h5>
+                <p>{b}</p>
+              </div>
+            ))}
           </div>
+          <p className="ficha-note">
+            También podés leerlas en <Link className="terms-link" to="/como-alquilar#condiciones" target="_blank">Cómo alquilar</Link>.
+          </p>
           <div className="field-row">
             <div className="field"><label>Nombre</label><input value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} placeholder="Gastón" /></div>
             <div className="field"><label>Apellido</label><input value={form.apellido} onChange={(e) => setForm({ ...form, apellido: e.target.value })} placeholder="Pérez" /></div>
@@ -94,7 +101,7 @@ export default function Alta() {
           </div>
           <div className="checkbox-row">
             <input type="checkbox" id="a-terms" checked={terms} onChange={(e) => setTerms(e.target.checked)} />
-            <label htmlFor="a-terms">Leí y acepto las bases y condiciones de alquiler de Lion Films.</label>
+            <label htmlFor="a-terms">Leí y acepto las <Link className="terms-link" to="/como-alquilar#condiciones" target="_blank">bases y condiciones de alquiler</Link> de Lion Films.</label>
           </div>
           <button className="btn btn-navy btn-block" onClick={submit}>Registrarme y continuar</button>
         </div>
