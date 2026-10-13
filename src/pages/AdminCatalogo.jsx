@@ -2,16 +2,19 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { money } from '../utils';
+import { ICONOS_SUGERIDOS } from '../lib/categorias';
 
 export default function AdminCatalogo() {
   const navigate = useNavigate();
   const {
     gabySession, categories, products, bundles, showToast,
-    guardarCategoria, eliminarCategoria, guardarCombo, eliminarCombo,
+    guardarCategoria, editarCategoria, eliminarCategoria, guardarCombo, eliminarCombo,
   } = useApp();
   const [tab, setTab] = useState('categorias');
 
-  const [catForm, setCatForm] = useState({ id: '', label: '', icon: '' });
+  const [catForm, setCatForm] = useState({ id: '', label: '', icon: '', grupo: '' });
+  const [editId, setEditId] = useState(null);
+  const [editForm, setEditForm] = useState({ label: '', icon: '', grupo: '' });
   const [comboForm, setComboForm] = useState({ name: '', priceNum: '', from: '', to: '', items: [] });
 
   if (!gabySession) {
@@ -30,10 +33,27 @@ export default function AdminCatalogo() {
     if (!catForm.id.trim() || !catForm.label.trim()) { showToast('Completá el ID y el nombre'); return; }
     try {
       await guardarCategoria(catForm);
-      setCatForm({ id: '', label: '', icon: '' });
+      setCatForm({ id: '', label: '', icon: '', grupo: '' });
       showToast('Categoría creada ✅');
     } catch (err) {
       showToast('Error: ' + (err.message || 'no se pudo crear'));
+    }
+  }
+
+  function abrirEdicion(c) {
+    setEditId(c.id);
+    setEditForm({ label: c.label, icon: c.icon || '', grupo: c.grupo || '' });
+  }
+
+  async function handleGuardarEdicion() {
+    if (!editForm.label.trim()) { showToast('El nombre no puede quedar vacío'); return; }
+    try {
+      await editarCategoria(editId, { ...editForm, label: editForm.label.trim() });
+      setEditId(null);
+      showToast('Categoría actualizada ✅');
+    } catch (err) {
+      const falta = /grupo/i.test(err.message || '');
+      showToast(falta ? 'Falta correr supabase-categorias-grupos.sql en Supabase' : 'Error: ' + (err.message || 'no se pudo guardar'));
     }
   }
 
@@ -112,12 +132,41 @@ export default function AdminCatalogo() {
           <div>
             <div className="ficha-card">
               {categories.map((c) => (
-                <div key={c.id} className="ficha-reserva">
-                  <div className="thumb">{c.icon}</div>
-                  <div className="r-info"><b>{c.label}</b><span>id: {c.id}</span></div>
-                  <button className="btn btn-sm btn-ghost" onClick={() => handleDeleteCategoria(c.id)}>Borrar</button>
-                </div>
+                editId === c.id ? (
+                  <div key={c.id} className="cat-edit">
+                    <div className="field-row">
+                      <div className="field"><label>Nombre</label><input value={editForm.label} onChange={(e) => setEditForm({ ...editForm, label: e.target.value })} /></div>
+                      <div className="field">
+                        <label>Grupo del menú (ej: Imagen, Sonido)</label>
+                        <input list="grupos-existentes" value={editForm.grupo} onChange={(e) => setEditForm({ ...editForm, grupo: e.target.value })} placeholder="Sin grupo" />
+                      </div>
+                    </div>
+                    <div className="field">
+                      <label>Ícono</label>
+                      <div className="icon-picker">
+                        {ICONOS_SUGERIDOS.map((i) => (
+                          <button type="button" key={i} className={`icon-opt${editForm.icon === i ? ' active' : ''}`} onClick={() => setEditForm({ ...editForm, icon: i })}>{i}</button>
+                        ))}
+                        <input className="icon-custom" value={editForm.icon} onChange={(e) => setEditForm({ ...editForm, icon: e.target.value })} placeholder="o escribí otro" maxLength={4} />
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button className="btn btn-sm btn-navy" onClick={handleGuardarEdicion}>Guardar</button>
+                      <button className="btn btn-sm btn-ghost" onClick={() => setEditId(null)}>Cancelar</button>
+                    </div>
+                  </div>
+                ) : (
+                  <div key={c.id} className="ficha-reserva">
+                    <div className="thumb">{c.icon}</div>
+                    <div className="r-info"><b>{c.label}</b><span>{c.grupo ? `Grupo: ${c.grupo}` : 'Sin grupo'} · id: {c.id}</span></div>
+                    <button className="btn btn-sm btn-ghost" onClick={() => abrirEdicion(c)}>Editar</button>
+                    <button className="btn btn-sm btn-ghost" onClick={() => handleDeleteCategoria(c.id)}>Borrar</button>
+                  </div>
+                )
               ))}
+              <datalist id="grupos-existentes">
+                {[...new Set(categories.map((c) => c.grupo).filter(Boolean))].map((g) => <option key={g} value={g} />)}
+              </datalist>
             </div>
             <div style={{ marginTop: 20, fontWeight: 700, fontSize: 13 }}>+ Nueva categoría</div>
             <form onSubmit={handleAddCategoria}>
@@ -125,6 +174,7 @@ export default function AdminCatalogo() {
                 <div className="field"><label>ID (sin espacios)</label><input value={catForm.id} onChange={(e) => setCatForm({ ...catForm, id: e.target.value.trim().toLowerCase() })} placeholder="drones" /></div>
                 <div className="field"><label>Nombre</label><input value={catForm.label} onChange={(e) => setCatForm({ ...catForm, label: e.target.value })} placeholder="Drones" /></div>
                 <div className="field"><label>Ícono (emoji)</label><input value={catForm.icon} onChange={(e) => setCatForm({ ...catForm, icon: e.target.value })} placeholder="🚁" /></div>
+                <div className="field"><label>Grupo (opcional)</label><input list="grupos-existentes" value={catForm.grupo} onChange={(e) => setCatForm({ ...catForm, grupo: e.target.value })} placeholder="Imagen" /></div>
               </div>
               <button type="submit" className="btn btn-navy">Agregar categoría</button>
             </form>

@@ -4,6 +4,7 @@ import { useApp } from '../context/AppContext';
 import { money, dateKey } from '../utils';
 import ProductMedia from '../components/ProductMedia';
 import CatalogStatus from '../components/CatalogStatus';
+import { agruparCategorias } from '../lib/categorias';
 import lionHead from '../assets/lion-head.png';
 
 // Sin tildes ni mayúsculas, para que "camara" encuentre "Cámaras".
@@ -56,9 +57,14 @@ export default function Listado() {
         <aside className="sidebar">
           <h4>Categorías</h4>
           <div>
-            {categories.map((c) => (
-              <div key={c.id} className={`sidebar-item${c.id === cat ? ' active' : ''}`} onClick={() => navigate(`/listado/${c.id}`)}>
-                {c.icon ? c.icon + ' ' : ''}{c.label}
+            {agruparCategorias(categories).map((g) => (
+              <div key={g.titulo || 'todas'}>
+                {g.titulo && <div className="sidebar-group-title">{g.titulo}</div>}
+                {g.items.map((c) => (
+                  <div key={c.id} className={`sidebar-item${c.id === cat ? ' active' : ''}`} onClick={() => navigate(`/listado/${c.id}`)}>
+                    {c.icon ? c.icon + ' ' : ''}{c.label}
+                  </div>
+                ))}
               </div>
             ))}
           </div>

@@ -43,8 +43,11 @@ export default function CartDrawer() {
     lines.push('*Equipo solicitado:*');
     cart.forEach((item) => {
       const p = getProduct(item.productId);
-      lines.push(`- ${p.name} x${item.qty} (${fmtKey(item.from)} → ${fmtKey(item.to)})`);
+      lines.push(`- ${p.name} x${item.qty} (${fmtKey(item.from)} → ${fmtKey(item.to)}, ${rentalDays(item.from, item.to)} días)`);
     });
+    lines.push('');
+    lines.push(`*Valor estimado:* ${money(total)} (precios de referencia, a confirmar)`);
+    if (clienteRegistrado) lines.push('✅ Cliente registrado — bases y condiciones aceptadas');
     return lines.join('\n');
   }
 

@@ -494,3 +494,18 @@ footer{padding:44px 32px 60px;text-align:center;color:var(--text-low);font-size:
 .ya-body{padding:2px 18px 18px;}
 .ya-error{margin:0 0 12px;font-size:12.5px;line-height:1.5;color:#ff8d8d;}
 .gate-link{display:block;margin:10px auto 0;background:none;border:none;cursor:pointer;color:var(--accent-orange);font:inherit;font-size:12px;font-weight:700;text-decoration:underline;}
+
+/* Menú Equipos agrupado (Imagen, Sonido, Accesorios…) */
+.dropdown-col{display:flex;flex-direction:column;min-width:0;}
+.dropdown-menu.grouped{flex-direction:row;flex-wrap:wrap;align-items:flex-start;gap:4px 22px;padding:12px 14px;width:max-content;max-width:min(860px,calc(100vw - 40px));}
+.dropdown-menu.grouped .dropdown-col{min-width:160px;}
+.dropdown-group-title{font-size:10.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent-orange);padding:6px 12px 4px;}
+.sidebar-group-title{font-size:10.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent-orange);margin:16px 0 2px;}
+.sidebar-group-title:first-child{margin-top:0;}
+
+/* Edición de categorías (panel de Gaby) */
+.cat-edit{padding:14px 0;border-bottom:1px solid var(--border);}
+.icon-picker{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.icon-opt{width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,0.05);cursor:pointer;font-size:19px;line-height:1;}
+.icon-opt.active{border-color:var(--accent-orange);background:rgba(255,138,61,0.18);}
+.icon-custom{width:130px !important;}

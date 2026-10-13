@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { agruparCategorias } from '../lib/categorias';
 import lionHead from '../assets/lion-head.png';
 
 export default function Header() {
@@ -8,6 +9,8 @@ export default function Header() {
   const { mode, cart, pendingCount, setDrawerOpen, logoutGaby, categories } = useApp();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const cartQty = cart.reduce((n, i) => n + i.qty, 0);
+  const grupos = agruparCategorias(categories);
+  const agrupado = grupos.length > 1 || !!grupos[0]?.titulo;
 
   return (
     <>
@@ -19,11 +22,16 @@ export default function Header() {
         <nav className="main-nav">
           <div className={`nav-dropdown${dropdownOpen ? ' open' : ''}`} onMouseLeave={() => setDropdownOpen(false)}>
             <span className="nav-link" onClick={() => setDropdownOpen((o) => !o)}>Equipos ▾</span>
-            <div className="dropdown-menu">
-              {categories.map((c) => (
-                <a key={c.id} onClick={() => { setDropdownOpen(false); navigate(`/listado/${c.id}`); }}>
-                  {c.icon ? c.icon + ' ' : ''}{c.label}
-                </a>
+            <div className={`dropdown-menu${agrupado ? ' grouped' : ''}`}>
+              {grupos.map((g) => (
+                <div className="dropdown-col" key={g.titulo || 'todas'}>
+                  {g.titulo && <div className="dropdown-group-title">{g.titulo}</div>}
+                  {g.items.map((c) => (
+                    <a key={c.id} onClick={() => { setDropdownOpen(false); navigate(`/listado/${c.id}`); }}>
+                      {c.icon ? c.icon + ' ' : ''}{c.label}
+                    </a>
+                  ))}
+                </div>
               ))}
             </div>
           </div>

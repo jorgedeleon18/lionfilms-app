@@ -3,7 +3,7 @@ import { supabase } from '../supabaseClient';
 import {
   fetchCatalog,
   crearProducto, actualizarProducto, borrarProducto,
-  crearCategoria, borrarCategoria,
+  crearCategoria, borrarCategoria, actualizarCategoria,
   crearCombo, borrarCombo,
 } from '../lib/supabaseCatalog';
 import { fetchClientes, upsertCliente, reconocerCliente } from '../lib/supabaseClientes';
@@ -183,9 +183,16 @@ export function AppProvider({ children }) {
   }, [reloadCatalog]);
 
   const guardarCategoria = useCallback(async (form) => {
-    await crearCategoria({ id: form.id, label: form.label, icon: form.icon || '📦', orden: categories.length + 1 });
+    const fila = { id: form.id, label: form.label, icon: form.icon || '📦', orden: categories.length + 1 };
+    if (form.grupo && form.grupo.trim()) fila.grupo = form.grupo.trim();
+    await crearCategoria(fila);
     await reloadCatalog();
   }, [reloadCatalog, categories.length]);
+
+  const editarCategoria = useCallback(async (id, form) => {
+    await actualizarCategoria(id, { label: form.label, icon: form.icon || '📦', grupo: (form.grupo || '').trim() || null });
+    await reloadCatalog();
+  }, [reloadCatalog]);
 
   const eliminarCategoria = useCallback(async (id) => {
     await borrarCategoria(id);
@@ -365,7 +372,7 @@ export function AppProvider({ children }) {
     categories, products, bundles, catalogLoading, catalogError, retryCatalog, catLabel, getProduct, reloadCatalog,
     clientes, clientesLoading, reloadClientes,
     guardarProducto, eliminarProducto,
-    guardarCategoria, eliminarCategoria,
+    guardarCategoria, editarCategoria, eliminarCategoria,
     guardarCombo, eliminarCombo,
   };
 

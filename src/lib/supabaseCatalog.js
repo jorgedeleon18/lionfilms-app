@@ -45,7 +45,7 @@ export async function fetchCatalog() {
   // ahora el error sube y la app muestra "No pudimos cargar" con Reintentar.
   if (errCat || errProd || errCombo) throw (errCat || errProd || errCombo);
 
-  const categories = (categoriasRows || []).map((c) => ({ id: c.id, label: c.label, icon: c.icon }));
+  const categories = (categoriasRows || []).map((c) => ({ id: c.id, label: c.label, icon: c.icon, grupo: c.grupo || '' }));
   const iconByCat = Object.fromEntries(categories.map((c) => [c.id, c.icon]));
   const products = (productosRows || []).map((r) => productoToApp(r, iconByCat[r.categoria_id]));
   const bundles = (combosRows || []).map((b) => ({
@@ -140,6 +140,11 @@ export async function borrarProducto(id) {
 
 export async function crearCategoria(data) {
   const { error } = await supabase.from('categorias').insert(data);
+  if (error) throw error;
+}
+
+export async function actualizarCategoria(id, data) {
+  const { error } = await supabase.from('categorias').update(data).eq('id', id);
   if (error) throw error;
 }
 
