@@ -122,16 +122,6 @@ export function AppProvider({ children }) {
     if (gabySession) reloadReservas(); else setReservations([]);
   }, [gabySession, reloadReservas]);
 
-  // Al volver a la pestaña, se refrescan fechas bloqueadas (y pedidos, si es Gaby).
-  useEffect(() => {
-    function onVisible() {
-      if (document.visibilityState !== 'visible') return;
-      reloadBloqueos();
-      if (gabySession) { reloadReservas(); reloadClientes(true); }
-    }
-    document.addEventListener('visibilitychange', onVisible);
-    return () => document.removeEventListener('visibilitychange', onVisible);
-  }, [gabySession, reloadBloqueos, reloadReservas, reloadClientes]);
 
   // Lista completa de clientes que se dieron de alta (tabla clientes en
   // Supabase). Solo Gaby logueada puede leerla (RLS) — se recarga cuando
@@ -144,6 +134,17 @@ export function AppProvider({ children }) {
   }, []);
 
   useEffect(() => { reloadClientes(); }, [reloadClientes, gabySession]);
+
+  // Al volver a la pestaña, se refrescan fechas bloqueadas (y pedidos, si es Gaby).
+  useEffect(() => {
+    function onVisible() {
+      if (document.visibilityState !== 'visible') return;
+      reloadBloqueos();
+      if (gabySession) { reloadReservas(); reloadClientes(true); }
+    }
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [gabySession, reloadBloqueos, reloadReservas, reloadClientes]);
 
   const catLabel = useCallback((catId) => {
     const c = categories.find((x) => x.id === catId);
