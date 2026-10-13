@@ -71,6 +71,12 @@ export default function Producto() {
     navigate('/alta');
   }
 
+  function irAReconocerme() {
+    setPendingReturnProductId(p.id);
+    setSavedCalState({ productId: p.id, from, to });
+    navigate('/alta#ya');
+  }
+
   function handleAdd() {
     if (!clienteRegistrado) { irARegistrarme(); return; }
     if (!from || !to) { showToast('Elegí las fechas del alquiler'); return; }
@@ -133,6 +139,7 @@ export default function Producto() {
               <div className="gate-notice">
                 <p>🔒 Para poder alquilar necesitás completar tu registro (una sola vez).</p>
                 <button className="btn btn-navy btn-sm btn-block" onClick={irARegistrarme}>Registrarme ahora</button>
+                <button type="button" className="gate-link" onClick={irAReconocerme}>Ya alquilé antes</button>
               </div>
             )}
             <Calendar mode="select" blockedKeys={blockedKeys} from={from} to={to} onPick={pickDate} />

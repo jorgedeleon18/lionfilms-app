@@ -45,3 +45,15 @@ export async function upsertCliente(data) {
   const { error } = await supabase.from('clientes').insert(row);
   if (error && error.code !== '23505') throw error;
 }
+
+// "Ya alquilé antes": busca al cliente por DNI + (teléfono o email). La tabla
+// está cerrada al público; esto pasa por una función segura en Supabase
+// (ver supabase-reconocer-cliente.sql). Devuelve el cliente o null si no
+// coincide. Si hay un problema de conexión, tira el error.
+export async function reconocerCliente(dni, contacto) {
+  if (!supabase) throw new Error('Supabase no está configurado');
+  const { data, error } = await supabase.rpc('reconocer_cliente', { p_dni: dni, p_contacto: contacto });
+  if (error) throw error;
+  const row = Array.isArray(data) ? data[0] : data;
+  return row ? clienteToApp(row) : null;
+}

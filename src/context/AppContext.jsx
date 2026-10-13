@@ -6,7 +6,7 @@ import {
   crearCategoria, borrarCategoria,
   crearCombo, borrarCombo,
 } from '../lib/supabaseCatalog';
-import { fetchClientes, upsertCliente } from '../lib/supabaseClientes';
+import { fetchClientes, upsertCliente, reconocerCliente } from '../lib/supabaseClientes';
 import {
   fetchBloqueos, insertarBloqueos, borrarBloqueo,
   crearReserva, fetchReservas, actualizarEstadoItem,
@@ -280,6 +280,18 @@ export function AppProvider({ children }) {
   }, []);
   const editarRegistro = useCallback(() => setClienteRegistrado(false), []);
 
+  // "Ya alquilé antes": si el DNI + teléfono/email coinciden con un registro,
+  // este navegador pasa a estar registrado con esos datos. Devuelve true/false;
+  // si hay un problema de conexión, tira el error para avisarle al cliente.
+  const reconocerClienteExistente = useCallback(async (dni, contacto) => {
+    const c = await reconocerCliente(dni, contacto);
+    if (!c) return false;
+    setClienteData({ nombre: c.nombre, apellido: c.apellido, dni: c.dni, tel: c.tel, mail: c.mail, dir: c.dir });
+    setClienteRegistrado(true);
+    setClienteActualDni(c.dni);
+    return true;
+  }, []);
+
   const toggleBlock = useCallback(async (productId, key) => {
     const estabaBloqueado = (blocked[productId] || []).includes(key);
     const aplicar = (bloquear) => setBlocked((b) => {
@@ -343,7 +355,7 @@ export function AppProvider({ children }) {
     loginGaby, logoutGaby,
     cart, addToCart, removeFromCart, clearCart,
     clienteRegistrado, clienteData, clienteActualDni, setClienteActualDni,
-    registrarCliente, editarRegistro,
+    registrarCliente, editarRegistro, reconocerClienteExistente,
     blocked, toggleBlock, reloadBloqueos, bloqueosError,
     reservations, misPedidos, registrarReserva, marcarEstado, pendingCount, reloadReservas,
     toast, showToast,

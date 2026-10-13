@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { TERMS } from '../lib/condiciones';
 import lionLogoColor from '../assets/lion-logo-color.png';
@@ -7,12 +7,55 @@ import lionLogoColor from '../assets/lion-logo-color.png';
 export default function Alta() {
   const navigate = useNavigate();
   const {
-    clienteRegistrado, clienteData, registrarCliente, editarRegistro,
+    clienteRegistrado, clienteData, registrarCliente, editarRegistro, reconocerClienteExistente,
     pendingReturnProductId, setPendingReturnProductId, showToast,
   } = useApp();
 
   const [form, setForm] = useState({ nombre: '', apellido: '', dni: '', tel: '', dir: '', mail: '' });
   const [terms, setTerms] = useState(false);
+  const { hash } = useLocation();
+  const [yaOpen, setYaOpen] = useState(hash === '#ya');
+  const [ya, setYa] = useState({ dni: '', contacto: '' });
+  const [yaLoading, setYaLoading] = useState(false);
+  const [yaError, setYaError] = useState('');
+  const yaRef = useRef(null);
+
+  useEffect(() => {
+    if (hash === '#ya') {
+      setYaOpen(true);
+      const t = setTimeout(() => yaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 150);
+      return () => clearTimeout(t);
+    }
+  }, [hash]);
+
+  function volverAlProducto() {
+    if (pendingReturnProductId) {
+      const pid = pendingReturnProductId;
+      setPendingReturnProductId(null);
+      navigate(`/producto/${pid}`);
+    }
+  }
+
+  async function reconocerme() {
+    setYaError('');
+    if (!/^\d{8}$/.test(ya.dni.trim())) { setYaError('El DNI tiene que tener 8 números, sin puntos.'); return; }
+    if (!ya.contacto.trim()) { setYaError('Ingresá el teléfono o el email con el que te registraste.'); return; }
+    setYaLoading(true);
+    try {
+      const ok = await reconocerClienteExistente(ya.dni.trim(), ya.contacto.trim());
+      if (!ok) {
+        setYaError('No encontramos ese registro. Revisá el DNI y el dato de contacto, o registrate como cliente nuevo más abajo.');
+      } else {
+        showToast('¡Te reconocimos! Ya podés alquilar 🎬');
+        volverAlProducto();
+      }
+    } catch (err) {
+      console.error('No se pudo verificar el cliente', err);
+      setYaError('No pudimos conectarnos para verificarlo. Probá de nuevo en unos segundos.');
+    } finally {
+      setYaLoading(false);
+    }
+  }
 
   // Solo números, sin puntos ni espacios ni letras — y con una cantidad fija
   // de dígitos, así los datos quedan siempre parejos en la ficha de Gaby.
@@ -27,11 +70,7 @@ export default function Alta() {
     if (form.tel.trim() && !/^\d{10}$/.test(form.tel.trim())) { showToast('El teléfono tiene que tener 10 números, sin espacios ni caracteres'); return; }
     await registrarCliente({ ...form, nombre: form.nombre.trim(), dni: form.dni.trim() });
     showToast('¡Listo! Ya podés alquilar sin volver a registrarte 🎬');
-    if (pendingReturnProductId) {
-      const pid = pendingReturnProductId;
-      setPendingReturnProductId(null);
-      navigate(`/producto/${pid}`);
-    }
+    volverAlProducto();
   }
 
   if (clienteRegistrado && clienteData) {
@@ -66,6 +105,29 @@ export default function Alta() {
         <div className="alta-inner">
           <h1>Alta de clientes</h1>
           <p className="alta-sub">Leé las bases y condiciones y completá tu registro. Se completa una sola vez — después ya podés alquilar sin volver a cargar tus datos.</p>
+          <div className="ya-box" ref={yaRef}>
+            <button type="button" className="ya-toggle" onClick={() => setYaOpen((o) => !o)} aria-expanded={yaOpen}>
+              <span>¿Ya alquilaste antes? <b>Ingresá con tus datos</b></span>
+              <span>{yaOpen ? '–' : '+'}</span>
+            </button>
+            {yaOpen && (
+              <div className="ya-body">
+                <p className="ficha-note" style={{ marginTop: 0 }}>Escribí tu DNI y el teléfono <b>o</b> el email con el que te registraste. Así no tenés que cargar todo de nuevo.</p>
+                <div className="field-row">
+                  <div className="field">
+                    <label>DNI</label>
+                    <input value={ya.dni} onChange={(e) => setYa({ ...ya, dni: onlyDigits(e.target.value, 8) })} placeholder="30123456" inputMode="numeric" maxLength={8} />
+                  </div>
+                  <div className="field">
+                    <label>Teléfono o email</label>
+                    <input value={ya.contacto} onChange={(e) => setYa({ ...ya, contacto: e.target.value })} placeholder="1122334455 o vos@mail.com" onKeyDown={(e) => { if (e.key === 'Enter') reconocerme(); }} />
+                  </div>
+                </div>
+                {yaError && <p className="ya-error" role="alert">{yaError}</p>}
+                <button type="button" className="btn btn-gradient btn-sm" onClick={reconocerme} disabled={yaLoading}>{yaLoading ? 'Verificando…' : 'Reconocerme'}</button>
+              </div>
+            )}
+          </div>
           <div className="terms-box terms-scroll" tabIndex={0}>
             {TERMS.map(([t, b], i) => (
               <div key={t}>

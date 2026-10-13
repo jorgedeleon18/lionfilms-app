@@ -476,3 +476,22 @@ footer{padding:44px 32px 60px;text-align:center;color:var(--text-low);font-size:
 .state-box p{margin:0 0 18px;font-size:13px;line-height:1.55;color:var(--text-mid);}
 .state-spinner{width:26px;height:26px;margin:0 auto 14px;border-radius:50%;border:3px solid rgba(255,255,255,0.15);border-top-color:var(--accent-orange);animation:state-spin .8s linear infinite;}
 @keyframes state-spin{to{transform:rotate(360deg);}}
+
+/* Buscador y filtro de fechas del listado */
+.listado-filters{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin:4px 0 18px;}
+.listado-search{flex:1 1 260px;}
+.listado-search input,.listado-dates input{width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,0.05);backdrop-filter:blur(14px);color:var(--text-hi);font:inherit;font-size:13.5px;outline:none;}
+.listado-search input:focus,.listado-dates input:focus{border-color:rgba(255,138,61,0.55);}
+.listado-dates{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;}
+.listado-dates label{display:flex;flex-direction:column;gap:4px;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--text-mid);}
+.listado-dates input{width:auto;color-scheme:dark;}
+.listado-dates input:disabled{opacity:.45;}
+.listado-clear{cursor:pointer;border:1px solid rgba(255,138,61,0.35);background:rgba(255,138,61,0.12);color:var(--accent-orange);font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;padding:11px 16px;border-radius:999px;}
+
+/* "Ya alquilé antes" en la Alta de clientes */
+.ya-box{border:1px solid rgba(255,138,61,0.3);background:rgba(255,138,61,0.08);border-radius:var(--radius-md);margin-bottom:18px;overflow:hidden;}
+.ya-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 18px;background:none;border:none;cursor:pointer;color:var(--text-hi);font:inherit;font-size:13.5px;text-align:left;}
+.ya-toggle b{color:var(--accent-orange);}
+.ya-body{padding:2px 18px 18px;}
+.ya-error{margin:0 0 12px;font-size:12.5px;line-height:1.5;color:#ff8d8d;}
+.gate-link{display:block;margin:10px auto 0;background:none;border:none;cursor:pointer;color:var(--accent-orange);font:inherit;font-size:12px;font-weight:700;text-decoration:underline;}
