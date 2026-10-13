@@ -33,7 +33,7 @@ export default function Listado() {
           </div>
           <div className="grid">
             {items.map((p) => {
-              const priceHtml = p.badge === 'promo'
+              const priceHtml = p.badge === 'promo' && p.originalPriceNum != null
                 ? <><span className="strike">{money(p.originalPriceNum)}</span>{p.price}</>
                 : p.price;
               return (

@@ -16,7 +16,8 @@ export function rentalDays(from, to) {
   return Math.max(diff, 1);
 }
 export function money(n) {
-  return '$' + n.toLocaleString('es-AR');
+  if (n == null || Number.isNaN(Number(n))) return '';
+  return '$' + Number(n).toLocaleString('es-AR');
 }
 export const MONTH_NAMES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 export const STATUS_LABEL = { pendiente: 'Pendiente', entregado: 'Entregado', no_disponible: 'No disponible' };
