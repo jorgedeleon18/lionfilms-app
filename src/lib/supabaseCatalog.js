@@ -55,11 +55,46 @@ export async function fetchCatalog() {
   return { categories, products, bundles };
 }
 
-export async function subirFotoProducto(file) {
+/* Achica la foto en el navegador antes de subirla: Gaby puede elegir la
+   foto original de la cámara (10-20 MB) y acá se convierte a un JPG de
+   1600 px como máximo (~200-400 KB). Así el sitio carga rápido y no se
+   gasta la cuota de descargas de Supabase. Si algo falla (formato que el
+   navegador no entiende, como HEIC en Chrome), se sube la original. */
+const FOTO_LADO_MAX = 1600;
+const FOTO_CALIDAD = 0.82;
+
+async function comprimirFoto(file) {
+  if (!file.type.startsWith('image/') || file.type === 'image/gif' || file.type === 'image/svg+xml') return file;
+  try {
+    // imageOrientation: respeta la rotación del celular/cámara (EXIF).
+    const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+    const escala = Math.min(1, FOTO_LADO_MAX / Math.max(bitmap.width, bitmap.height));
+    const ancho = Math.round(bitmap.width * escala);
+    const alto = Math.round(bitmap.height * escala);
+    const canvas = document.createElement('canvas');
+    canvas.width = ancho;
+    canvas.height = alto;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff'; // fondo blanco por si es un PNG con transparencia
+    ctx.fillRect(0, 0, ancho, alto);
+    ctx.drawImage(bitmap, 0, 0, ancho, alto);
+    bitmap.close?.();
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', FOTO_CALIDAD));
+    if (!blob || blob.size >= file.size) return file; // si no achicó nada, va la original
+    return new File([blob], 'foto.jpg', { type: 'image/jpeg' });
+  } catch (err) {
+    console.warn('No se pudo comprimir la foto, se sube la original', err);
+    return file;
+  }
+}
+
+export async function subirFotoProducto(fileOriginal) {
+  const file = await comprimirFoto(fileOriginal);
   const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
   const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
   const { error } = await supabase.storage.from('productos').upload(path, file, {
-    cacheControl: '3600',
+    contentType: file.type || undefined,
+    cacheControl: '31536000', // cada foto tiene nombre único, se puede cachear 1 año
     upsert: false,
   });
   if (error) throw error;
