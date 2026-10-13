@@ -6,7 +6,7 @@ export default function SiteFooter() {
 
   return (
     <footer>
-      Lion Films × tu app. Colores, textos y fotos son placeholders para ir ajustando juntos.
+      © {new Date().getFullYear()} Lion Films — Alquiler de equipos audiovisuales
       <div style={{ marginTop: 14 }}>
         {gabySession ? (
           <a className="nav-icon-btn nav-icon-btn-staff" onClick={logoutGaby} style={{ display: 'inline-flex', cursor: 'pointer' }}>
