@@ -28,17 +28,22 @@ function productoToApp(row, categoriaIcon) {
 export async function fetchCatalog() {
   if (!supabase) return { categories: [], products: [], bundles: [] };
 
+  // Tiempo máximo de espera: si Supabase no contesta, se corta y se avisa
+  // (en vez de quedar la pantalla vacía para siempre).
+  const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Supabase tardó demasiado en responder')), 12000));
   const [{ data: categoriasRows, error: errCat }, { data: productosRows, error: errProd }, { data: combosRows, error: errCombo }] =
-    await Promise.all([
-      supabase.from('categorias').select('*').order('orden'),
-      supabase.from('productos').select('*, producto_specs(*)').order('id'),
-      supabase.from('combos').select('*, combo_items(producto_id)').order('id'),
+    await Promise.race([
+      Promise.all([
+        supabase.from('categorias').select('*').order('orden'),
+        supabase.from('productos').select('*, producto_specs(*)').order('id'),
+        supabase.from('combos').select('*, combo_items(producto_id)').order('id'),
+      ]),
+      timeout,
     ]);
 
-  if (errCat || errProd || errCombo) {
-    console.error('Error cargando catálogo de Supabase', errCat || errProd || errCombo);
-    return { categories: [], products: [], bundles: [] };
-  }
+  // Antes devolvía listas vacías y la web quedaba en blanco sin explicación;
+  // ahora el error sube y la app muestra "No pudimos cargar" con Reintentar.
+  if (errCat || errProd || errCombo) throw (errCat || errProd || errCombo);
 
   const categories = (categoriasRows || []).map((c) => ({ id: c.id, label: c.label, icon: c.icon }));
   const iconByCat = Object.fromEntries(categories.map((c) => [c.id, c.icon]));

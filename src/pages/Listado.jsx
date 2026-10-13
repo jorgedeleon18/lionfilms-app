@@ -2,6 +2,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { money } from '../utils';
 import ProductMedia from '../components/ProductMedia';
+import CatalogStatus from '../components/CatalogStatus';
 import lionHead from '../assets/lion-head.png';
 
 export default function Listado() {
@@ -31,6 +32,7 @@ export default function Listado() {
               <button className="btn btn-sm btn-gradient" onClick={() => navigate('/admin/productos/nuevo')}>+ Nuevo producto</button>
             )}
           </div>
+          <CatalogStatus />
           <div className="grid">
             {items.map((p) => {
               const priceHtml = p.badge === 'promo' && p.originalPriceNum != null

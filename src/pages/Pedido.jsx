@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { fmtKey, rentalDays, money, STATUS_LABEL } from '../utils';
+import { fmtKey, rentalDays, money } from '../utils';
 
 export default function Pedido() {
   const navigate = useNavigate();
-  const { cart, clienteActualDni, reservations, setDrawerOpen, getProduct, catLabel } = useApp();
+  const { cart, clienteActualDni, misPedidos, setDrawerOpen, getProduct, catLabel } = useApp();
 
   let total = 0;
   const rows = cart.map((item) => {
@@ -15,7 +15,7 @@ export default function Pedido() {
     return { item, p, days, subtotal };
   });
 
-  const misReservas = clienteActualDni ? reservations.filter((r) => r.cliente.dni === clienteActualDni) : [];
+  const misReservas = clienteActualDni ? misPedidos.filter((r) => r.cliente.dni === clienteActualDni) : [];
 
   return (
     <main className="view active">
@@ -68,9 +68,9 @@ export default function Pedido() {
             <div className="divider" />
             <div className="listado-head" style={{ marginTop: 22 }}>
               <h2 style={{ fontSize: 18, fontWeight: 800 }}>Tus pedidos enviados</h2>
-              <div className="muted">Gaby los va a confirmar o avisarte si no puede</div>
+              <div className="muted">Gaby los confirma o te avisa si no puede</div>
             </div>
-            <p className="cal-admin-note">Esto simula lo que verías si ya estuvieras identificado con tu cuenta.</p>
+            <p className="cal-admin-note">Son los pedidos que enviaste desde este dispositivo. La confirmación te llega por WhatsApp o mail.</p>
             <div>
               {misReservas.map((r) => r.items.map((item, i) => {
                 const p = getProduct(item.productId);
@@ -81,7 +81,7 @@ export default function Pedido() {
                       <b>{p.name} {item.qty > 1 ? `× ${item.qty}` : ''}</b>
                       <span>{fmtKey(item.from)} → {fmtKey(item.to)}</span>
                     </div>
-                    <span className={`status-pill status-${item.status}`}>{STATUS_LABEL[item.status]}</span>
+                    <span className="status-pill status-pendiente">Enviado</span>
                   </div>
                 );
               }))}

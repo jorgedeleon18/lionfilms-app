@@ -469,3 +469,10 @@ footer{padding:44px 32px 60px;text-align:center;color:var(--text-low);font-size:
 .terms-scroll h5{font-size:12.5px;font-weight:800;margin:0 0 2px;color:var(--text-hi);}
 .terms-scroll p{margin:0 0 12px;}
 .terms-link{color:var(--accent-orange);font-weight:700;text-decoration:underline;}
+
+/* Estados de carga / error */
+.state-box{max-width:460px;margin:60px auto;padding:30px 26px;text-align:center;border:1px solid var(--border);border-radius:var(--radius-md);background:rgba(255,255,255,0.04);backdrop-filter:blur(14px);}
+.state-box h3{margin:0 0 8px;font-size:17px;font-weight:800;color:#fff;}
+.state-box p{margin:0 0 18px;font-size:13px;line-height:1.55;color:var(--text-mid);}
+.state-spinner{width:26px;height:26px;margin:0 auto 14px;border-radius:50%;border:3px solid rgba(255,255,255,0.15);border-top-color:var(--accent-orange);animation:state-spin .8s linear infinite;}
+@keyframes state-spin{to{transform:rotate(360deg);}}

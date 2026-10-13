@@ -18,9 +18,15 @@ import AdminFechas from './pages/AdminFechas';
 import AdminCatalogo from './pages/AdminCatalogo';
 import AdminProducto from './pages/AdminProducto';
 import AdminPanel from './pages/AdminPanel';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Al cambiar de página, arranca siempre arriba del todo (evita que quede
 // el scroll heredado de la página anterior, que parecía "saltar" al final).
+function RoutesGuard({ children }) {
+  const { pathname } = useLocation();
+  return <ErrorBoundary resetKey={pathname}>{children}</ErrorBoundary>;
+}
+
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -35,6 +41,7 @@ export default function App() {
       <AppProvider>
         <ScrollToTop />
         <Header />
+        <RoutesGuard>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/listado" element={<Listado />} />
@@ -50,6 +57,7 @@ export default function App() {
           <Route path="/admin/catalogo" element={<AdminCatalogo />} />
           <Route path="/admin/productos/:id" element={<AdminProducto />} />
         </Routes>
+        </RoutesGuard>
         <SiteFooter />
         <CartDrawer />
         <Toast />

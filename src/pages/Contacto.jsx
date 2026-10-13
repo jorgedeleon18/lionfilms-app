@@ -11,9 +11,9 @@ export default function Contacto() {
             <div className="ic">💬</div>
             <div><b>WhatsApp</b><div className="muted" style={{ fontSize: 12.5, color: 'var(--text-mid)' }}>Respuesta más rápida para consultas de stock y presupuestos.</div></div>
           </a>
-          <a className="contact-row" href="mailto:hola@lionfilms.com">
+          <a className="contact-row" href="mailto:produccion.lionfilms@gmail.com">
             <div className="ic">✉️</div>
-            <div><b>Email</b><div className="muted" style={{ fontSize: 12.5, color: 'var(--text-mid)' }}>Para presupuestos formales o pedidos grandes.</div></div>
+            <div><b>Email</b><div className="muted" style={{ fontSize: 12.5, color: 'var(--text-mid)' }}>produccion.lionfilms@gmail.com — para presupuestos formales o pedidos grandes.</div></div>
           </a>
           <div className="contact-row">
             <div className="ic">📍</div>

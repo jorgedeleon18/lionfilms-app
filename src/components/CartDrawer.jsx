@@ -59,7 +59,10 @@ export default function CartDrawer() {
       dir: form.dir.trim(),
       mail: form.mail.trim(),
     };
-    registrarReserva(cliente, cart);
+    // Se registra en el panel de Gaby (Supabase) sin frenar el envío por mensaje.
+    registrarReserva(cliente, cart).then((ok) => {
+      if (!ok) showToast('El pedido salió por mensaje, pero no quedó cargado en el panel. Avisale a Gaby.');
+    });
     setClienteActualDni(cliente.dni);
 
     if (channel === 'whatsapp') {
@@ -67,7 +70,7 @@ export default function CartDrawer() {
     } else {
       const subject = encodeURIComponent('Pedido de alquiler — Lion Films');
       const body = encodeURIComponent(text.replace(/\*/g, ''));
-      window.location.href = `mailto:?subject=${subject}&body=${body}`;
+      window.location.href = `mailto:produccion.lionfilms@gmail.com?subject=${subject}&body=${body}`;
     }
 
     clearCart();

@@ -7,6 +7,26 @@ import {
   crearCombo, borrarCombo,
 } from '../lib/supabaseCatalog';
 import { fetchClientes, upsertCliente } from '../lib/supabaseClientes';
+import {
+  fetchBloqueos, insertarBloqueos, borrarBloqueo,
+  crearReserva, fetchReservas, actualizarEstadoItem,
+} from '../lib/supabaseReservas';
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Todas las fechas entre desde y hasta (inclusive), como 'YYYY-MM-DD'.
+function keysBetween(from, to) {
+  const [fy, fm, fd] = from.split('-').map(Number);
+  const [ty, tm, td] = to.split('-').map(Number);
+  const cursor = new Date(fy, fm - 1, fd);
+  const end = new Date(ty, tm - 1, td);
+  const keys = [];
+  while (cursor <= end) {
+    keys.push(`${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}-${String(cursor.getDate()).padStart(2, '0')}`);
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return keys;
+}
 
 const AppContext = createContext(null);
 
@@ -32,8 +52,13 @@ export function AppProvider({ children }) {
   const [clienteRegistrado, setClienteRegistrado] = useState(() => load('lf_cliente_reg', false));
   const [clienteData, setClienteData] = useState(() => load('lf_cliente_data', null));
   const [clienteActualDni, setClienteActualDni] = useState(() => load('lf_cliente_dni', null));
-  const [blocked, setBlocked] = useState(() => load('lf_blocked', {}));
-  const [reservations, setReservations] = useState(() => load('lf_reservations', []));
+  // Fechas bloqueadas: vienen de Supabase (las ve todo el mundo).
+  const [blocked, setBlocked] = useState({});
+  const [bloqueosError, setBloqueosError] = useState(false);
+  // Pedidos de TODOS los clientes: vienen de Supabase y solo los lee Gaby logueada.
+  const [reservations, setReservations] = useState([]);
+  // Pedidos que envió este navegador (historial propio del cliente en "Mi pedido").
+  const [misPedidos, setMisPedidos] = useState(() => load('lf_reservations', []));
   const [toast, setToast] = useState('');
   const toastTimer = useRef(null);
   const [pendingReturnProductId, setPendingReturnProductId] = useState(null);
@@ -47,18 +72,64 @@ export function AppProvider({ children }) {
   const [products, setProducts] = useState([]);
   const [bundles, setBundles] = useState([]);
   const [catalogLoading, setCatalogLoading] = useState(true);
+  const [catalogError, setCatalogError] = useState(false);
   const [clientes, setClientes] = useState([]);
   const [clientesLoading, setClientesLoading] = useState(true);
 
+  // Si Supabase falla (corte, red lenta) reintenta solo un par de veces antes
+  // de avisar; así un tropiezo momentáneo no deja la pantalla vacía.
   const reloadCatalog = useCallback(async () => {
-    const { categories: c, products: p, bundles: b } = await fetchCatalog();
-    setCategories(c);
-    setProducts(p);
-    setBundles(b);
+    for (let intento = 0; intento < 3; intento++) {
+      try {
+        const { categories: c, products: p, bundles: b } = await fetchCatalog();
+        setCategories(c);
+        setProducts(p);
+        setBundles(b);
+        setCatalogError(false);
+        setCatalogLoading(false);
+        return;
+      } catch (err) {
+        console.error('Error cargando catálogo de Supabase', err);
+        if (intento < 2) await sleep(1500 * (intento + 1));
+      }
+    }
+    setCatalogError(true);
     setCatalogLoading(false);
   }, []);
 
+  // Botón "Reintentar" de la pantalla de error.
+  const retryCatalog = useCallback(async () => {
+    setCatalogError(false);
+    setCatalogLoading(true);
+    await reloadCatalog();
+  }, [reloadCatalog]);
+
+  const reloadBloqueos = useCallback(async () => {
+    const b = await fetchBloqueos();
+    if (b) { setBlocked(b); setBloqueosError(false); } else { setBloqueosError(true); }
+  }, []);
+
+  const reloadReservas = useCallback(async () => {
+    const r = await fetchReservas();
+    if (r) setReservations(r);
+  }, []);
+
   useEffect(() => { reloadCatalog(); }, [reloadCatalog]);
+  useEffect(() => { reloadBloqueos(); }, [reloadBloqueos]);
+  useEffect(() => {
+    if (gabySession) reloadReservas(); else setReservations([]);
+  }, [gabySession, reloadReservas]);
+
+  // Al volver a la pestaña, se refrescan fechas bloqueadas (y pedidos, si es Gaby).
+  useEffect(() => {
+    function onVisible() {
+      if (document.visibilityState !== 'visible') return;
+      reloadBloqueos();
+      if (gabySession) reloadReservas();
+    }
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [gabySession, reloadBloqueos, reloadReservas]);
 
   // Lista completa de clientes que se dieron de alta (tabla clientes en
   // Supabase). Solo Gaby logueada puede leerla (RLS) — se recarga cuando
@@ -179,8 +250,7 @@ export function AppProvider({ children }) {
   useEffect(() => save('lf_cliente_reg', clienteRegistrado), [clienteRegistrado]);
   useEffect(() => save('lf_cliente_data', clienteData), [clienteData]);
   useEffect(() => save('lf_cliente_dni', clienteActualDni), [clienteActualDni]);
-  useEffect(() => save('lf_blocked', blocked), [blocked]);
-  useEffect(() => save('lf_reservations', reservations), [reservations]);
+  useEffect(() => save('lf_reservations', misPedidos), [misPedidos]);
 
   const showToast = useCallback((msg) => {
     setToast(msg);
@@ -210,54 +280,60 @@ export function AppProvider({ children }) {
   }, []);
   const editarRegistro = useCallback(() => setClienteRegistrado(false), []);
 
-  const toggleBlock = useCallback((productId, key) => {
-    setBlocked((b) => {
+  const toggleBlock = useCallback(async (productId, key) => {
+    const estabaBloqueado = (blocked[productId] || []).includes(key);
+    const aplicar = (bloquear) => setBlocked((b) => {
       const list = b[productId] || [];
-      const next = list.includes(key) ? list.filter((k) => k !== key) : [...list, key];
+      const next = bloquear ? [...new Set([...list, key])] : list.filter((k) => k !== key);
       return { ...b, [productId]: next };
     });
-  }, []);
+    aplicar(!estabaBloqueado); // se ve al instante; si falla se deshace
+    try {
+      if (estabaBloqueado) await borrarBloqueo(productId, key);
+      else await insertarBloqueos(productId, [key]);
+    } catch (err) {
+      console.error('No se pudo guardar el bloqueo', err);
+      aplicar(estabaBloqueado);
+      showToast('No se pudo guardar el cambio. Revisá tu conexión e intentá de nuevo.');
+    }
+  }, [blocked, showToast]);
 
-  const registrarReserva = useCallback((cliente, cartItems) => {
+  // Guarda el pedido en Supabase (para el panel de Gaby) y en este navegador
+  // (historial del cliente). Devuelve true si quedó registrado en Supabase.
+  const registrarReserva = useCallback(async (cliente, cartItems) => {
     const items = cartItems.map((item) => ({ ...item, status: 'pendiente' }));
-    setReservations((r) => [
-      ...r,
-      { id: 'r' + Date.now() + Math.floor(Math.random() * 1000), cliente, items, createdAt: new Date().toISOString() },
-    ]);
-  }, []);
-
-  const marcarEstado = useCallback((reservaId, itemIdx, status) => {
-    setReservations((rs) =>
-      rs.map((r) => {
-        if (r.id !== reservaId) return r;
-        const items = r.items.map((it, i) => (i === itemIdx ? { ...it, status } : it));
-        return { ...r, items };
-      })
-    );
-    if (status === 'entregado') {
-      setReservations((rs) => {
-        const r = rs.find((x) => x.id === reservaId);
-        if (r) {
-          const item = r.items[itemIdx];
-          const [fy, fm, fd] = item.from.split('-').map(Number);
-          const [ty, tm, td] = item.to.split('-').map(Number);
-          let cursor = new Date(fy, fm - 1, fd);
-          const end = new Date(ty, tm - 1, td);
-          const keys = [];
-          while (cursor <= end) {
-            keys.push(`${cursor.getFullYear()}-${(cursor.getMonth() + 1).toString().padStart(2, '0')}-${cursor.getDate().toString().padStart(2, '0')}`);
-            cursor.setDate(cursor.getDate() + 1);
-          }
-          setBlocked((b) => {
-            const list = b[item.productId] || [];
-            const next = [...new Set([...list, ...keys])];
-            return { ...b, [item.productId]: next };
-          });
-        }
-        return rs;
-      });
+    const id = 'r' + Date.now() + Math.floor(Math.random() * 1000);
+    setMisPedidos((r) => [...r, { id, cliente, items, createdAt: new Date().toISOString() }]);
+    try {
+      await crearReserva(cliente, items);
+      return true;
+    } catch (err) {
+      console.error('No se pudo registrar el pedido en Supabase', err);
+      return false;
     }
   }, []);
+
+  const marcarEstado = useCallback(async (reservaId, itemIdx, status) => {
+    const r = reservations.find((x) => x.id === reservaId);
+    const item = r && r.items[itemIdx];
+    if (!item) return;
+    try {
+      // Primero se bloquean las fechas y recién después se cambia el estado,
+      // así nunca queda "entregado" sin las fechas bloqueadas.
+      if (status === 'entregado') {
+        const keys = keysBetween(item.from, item.to);
+        await insertarBloqueos(item.productId, keys);
+        setBlocked((b) => ({ ...b, [item.productId]: [...new Set([...(b[item.productId] || []), ...keys])] }));
+      }
+      await actualizarEstadoItem(item.id, status);
+      setReservations((rs) => rs.map((x) => (x.id !== reservaId ? x : {
+        ...x, items: x.items.map((it, i) => (i === itemIdx ? { ...it, status } : it)),
+      })));
+    } catch (err) {
+      console.error('No se pudo actualizar el estado', err);
+      showToast('No se pudo guardar el cambio. Revisá tu conexión e intentá de nuevo.');
+    }
+  }, [reservations, showToast]);
 
   const pendingCount = reservations.reduce((n, r) => n + r.items.filter((i) => i.status === 'pendiente').length, 0);
 
@@ -268,13 +344,13 @@ export function AppProvider({ children }) {
     cart, addToCart, removeFromCart, clearCart,
     clienteRegistrado, clienteData, clienteActualDni, setClienteActualDni,
     registrarCliente, editarRegistro,
-    blocked, toggleBlock,
-    reservations, registrarReserva, marcarEstado, pendingCount,
+    blocked, toggleBlock, reloadBloqueos, bloqueosError,
+    reservations, misPedidos, registrarReserva, marcarEstado, pendingCount, reloadReservas,
     toast, showToast,
     pendingReturnProductId, setPendingReturnProductId,
     savedCalState, setSavedCalState,
     drawerOpen, setDrawerOpen,
-    categories, products, bundles, catalogLoading, catLabel, getProduct, reloadCatalog,
+    categories, products, bundles, catalogLoading, catalogError, retryCatalog, catLabel, getProduct, reloadCatalog,
     clientes, clientesLoading, reloadClientes,
     guardarProducto, eliminarProducto,
     guardarCategoria, eliminarCategoria,

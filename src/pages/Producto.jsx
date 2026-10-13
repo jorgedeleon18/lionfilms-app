@@ -1,18 +1,20 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { fmtKey, money } from '../utils';
 import Calendar from '../components/Calendar';
 import ProductMedia from '../components/ProductMedia';
+import CatalogStatus from '../components/CatalogStatus';
 import lionHead from '../assets/lion-head.png';
 
 export default function Producto() {
   const navigate = useNavigate();
   const { id } = useParams();
   const {
-    products, catLabel, catalogLoading,
+    products, catLabel, catalogLoading, catalogError,
     clienteRegistrado, addToCart, blocked, showToast,
     setPendingReturnProductId, savedCalState, setSavedCalState,
+    reloadBloqueos, bloqueosError,
   } = useApp();
   const p = products.find((x) => x.id === Number(id));
 
@@ -21,9 +23,18 @@ export default function Producto() {
   const [to, setTo] = useState(preserved?.to ?? null);
   const [qty, setQty] = useState(1);
 
+  // Al abrir un producto se refrescan las fechas ya reservadas.
+  useEffect(() => { reloadBloqueos(); }, [reloadBloqueos]);
+
   if (preserved) setSavedCalState(null);
 
-  if (!p) return <main className="view active"><div className="container"><p>{catalogLoading ? 'Cargando…' : 'Producto no encontrado.'}</p></div></main>;
+  if (!p) {
+    return (
+      <main className="view active"><div className="container">
+        {products.length === 0 && (catalogLoading || catalogError) ? <CatalogStatus /> : <p>Producto no encontrado.</p>}
+      </div></main>
+    );
+  }
 
   const blockedKeys = blocked[p.id] || [];
 
@@ -67,7 +78,7 @@ export default function Producto() {
     showToast('Agregado al pedido 🎬 — seguí eligiendo o abrí el carrito cuando quieras enviarlo');
   }
 
-  const priceHtml = p.badge === 'promo'
+  const priceHtml = p.badge === 'promo' && p.originalPriceNum != null
     ? <><span className="strike">{money(p.originalPriceNum)}</span>{p.price}</>
     : p.price;
 
@@ -130,6 +141,7 @@ export default function Producto() {
               <div className="cal-legend-item"><span className="cal-legend-dot" style={{ background: 'var(--danger)' }}></span>Ya reservado</div>
               <div className="cal-legend-item"><span className="cal-legend-dot" style={{ background: 'linear-gradient(120deg,var(--accent-orange),var(--accent-pink))' }}></span>Tu selección</div>
             </div>
+            {bloqueosError && <p className="ficha-note">No pudimos verificar ahora qué días están reservados. Igual podés armar el pedido: Gaby confirma la disponibilidad.</p>}
             <div className="cal-range-label">{rangeLabel}</div>
             <div className="qty-row">
               <span style={{ fontSize: 12.5, color: 'var(--text-mid)', fontWeight: 700 }}>Cantidad</span>

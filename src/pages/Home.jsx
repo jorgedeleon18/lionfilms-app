@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { money } from '../utils';
 import ProductMedia from '../components/ProductMedia';
+import CatalogStatus from '../components/CatalogStatus';
 import lionHead from '../assets/lion-head.png';
 import lionLogoColor from '../assets/lion-logo-color.png';
 
@@ -58,6 +59,7 @@ export default function Home() {
         </div>
       </div>
 
+      <CatalogStatus />
       <div className="section-title">Recién llegados<span>Lo último que sumó Gaby al catálogo</span></div>
       <div className="featured-grid">
         {featured.map((p) => (
