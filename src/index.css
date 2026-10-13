@@ -509,3 +509,9 @@ footer{padding:44px 32px 60px;text-align:center;color:var(--text-low);font-size:
 .icon-opt{width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,0.05);cursor:pointer;font-size:19px;line-height:1;}
 .icon-opt.active{border-color:var(--accent-orange);background:rgba(255,138,61,0.18);}
 .icon-custom{width:130px !important;}
+
+/* Foto de los combos */
+.promo-card .promo-photo{margin:-22px -22px 16px;height:170px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.promo-card .promo-photo img{width:100%;height:100%;object-fit:contain;display:block;}
+.combo-thumb{overflow:hidden;}
+.combo-thumb img{width:100%;height:100%;object-fit:cover;display:block;}

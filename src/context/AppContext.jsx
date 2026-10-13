@@ -4,7 +4,7 @@ import {
   fetchCatalog,
   crearProducto, actualizarProducto, borrarProducto,
   crearCategoria, borrarCategoria, actualizarCategoria,
-  crearCombo, borrarCombo,
+  crearCombo, borrarCombo, actualizarComboImagen, subirFotoProducto,
 } from '../lib/supabaseCatalog';
 import { fetchClientes, upsertCliente, reconocerCliente } from '../lib/supabaseClientes';
 import {
@@ -200,13 +200,22 @@ export function AppProvider({ children }) {
   }, [reloadCatalog]);
 
   const guardarCombo = useCallback(async (form) => {
-    await crearCombo({
+    const fila = {
       nombre: form.name,
       precio_num: Number(form.priceNum) || 0,
       fecha_desde: form.from || null,
       fecha_hasta: form.to || null,
       items: form.items,
-    });
+    };
+    if (form.img) fila.imagen_url = form.img;
+    await crearCombo(fila);
+    await reloadCatalog();
+  }, [reloadCatalog]);
+
+  // Agrega o cambia la foto de un combo que ya existe (sube el archivo y lo guarda).
+  const cambiarFotoCombo = useCallback(async (id, file) => {
+    const url = await subirFotoProducto(file);
+    await actualizarComboImagen(id, url);
     await reloadCatalog();
   }, [reloadCatalog]);
 
@@ -373,7 +382,7 @@ export function AppProvider({ children }) {
     clientes, clientesLoading, reloadClientes,
     guardarProducto, eliminarProducto,
     guardarCategoria, editarCategoria, eliminarCategoria,
-    guardarCombo, eliminarCombo,
+    guardarCombo, cambiarFotoCombo, eliminarCombo,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

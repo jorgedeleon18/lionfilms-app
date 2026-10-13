@@ -45,6 +45,7 @@ export default function Home() {
             return (
               <div className="promo-card" key={b.id} onClick={() => addBundleToCart(b)}>
                 <span className="promo-badge">Promo</span>
+                {b.img && <div className="promo-photo"><img src={b.img} alt={b.name} draggable="false" /></div>}
                 <h4>{b.name}</h4>
                 <div className="promo-items">{items.map((p) => `${p.icon} ${p.name}`).join('  +  ')}</div>
                 <div className="promo-price">

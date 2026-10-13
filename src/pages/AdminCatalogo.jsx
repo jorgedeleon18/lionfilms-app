@@ -3,19 +3,22 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { money } from '../utils';
 import { ICONOS_SUGERIDOS } from '../lib/categorias';
+import { subirFotoProducto } from '../lib/supabaseCatalog';
 
 export default function AdminCatalogo() {
   const navigate = useNavigate();
   const {
     gabySession, categories, products, bundles, showToast,
-    guardarCategoria, editarCategoria, eliminarCategoria, guardarCombo, eliminarCombo,
+    guardarCategoria, editarCategoria, eliminarCategoria, guardarCombo, cambiarFotoCombo, eliminarCombo,
   } = useApp();
   const [tab, setTab] = useState('categorias');
 
   const [catForm, setCatForm] = useState({ id: '', label: '', icon: '', grupo: '' });
   const [editId, setEditId] = useState(null);
   const [editForm, setEditForm] = useState({ label: '', icon: '', grupo: '' });
-  const [comboForm, setComboForm] = useState({ name: '', priceNum: '', from: '', to: '', items: [] });
+  const [comboForm, setComboForm] = useState({ name: '', priceNum: '', from: '', to: '', items: [], img: '' });
+  const [comboUploading, setComboUploading] = useState(false);
+  const [fotoComboId, setFotoComboId] = useState(null); // combo al que se le está subiendo foto
 
   if (!gabySession) {
     return (
@@ -85,10 +88,41 @@ export default function AdminCatalogo() {
     }
     try {
       await guardarCombo(comboForm);
-      setComboForm({ name: '', priceNum: '', from: '', to: '', items: [] });
+      setComboForm({ name: '', priceNum: '', from: '', to: '', items: [], img: '' });
       showToast('Combo creado ✅');
     } catch (err) {
       showToast('Error: ' + (err.message || 'no se pudo crear'));
+    }
+  }
+
+  async function handleComboFile(e) {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    setComboUploading(true);
+    try {
+      const url = await subirFotoProducto(file);
+      setComboForm((f) => ({ ...f, img: url }));
+    } catch (err) {
+      showToast('No se pudo subir la foto: ' + (err.message || 'error'));
+    } finally {
+      setComboUploading(false);
+    }
+  }
+
+  async function handleCambiarFotoCombo(id, e) {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    setFotoComboId(id);
+    try {
+      await cambiarFotoCombo(id, file);
+      showToast('Foto del combo actualizada ✅');
+    } catch (err) {
+      const falta = /imagen_url/i.test(err.message || '');
+      showToast(falta ? 'Falta correr supabase-combos-foto.sql en Supabase' : 'No se pudo guardar la foto: ' + (err.message || 'error'));
+    } finally {
+      setFotoComboId(null);
     }
   }
 
@@ -187,7 +221,12 @@ export default function AdminCatalogo() {
               {bundles.length === 0 && <p className="muted">Todavía no hay combos creados.</p>}
               {bundles.map((b) => (
                 <div key={b.id} className="ficha-reserva">
+                  <div className="thumb combo-thumb">{b.img ? <img src={b.img} alt="" /> : '🎬'}</div>
                   <div className="r-info"><b>{b.name}</b><span>{money(b.priceNum)}/día · {b.items.length} productos</span></div>
+                  <label className="btn btn-sm btn-ghost" style={{ cursor: 'pointer' }}>
+                    {fotoComboId === b.id ? 'Subiendo…' : b.img ? 'Cambiar foto' : 'Agregar foto'}
+                    <input type="file" accept="image/*" hidden disabled={fotoComboId === b.id} onChange={(e) => handleCambiarFotoCombo(b.id, e)} />
+                  </label>
                   <button className="btn btn-sm btn-ghost" onClick={() => handleDeleteCombo(b.id)}>Borrar</button>
                 </div>
               ))}
@@ -202,6 +241,17 @@ export default function AdminCatalogo() {
                 <div className="field"><label>Fecha desde (sugerida, opcional)</label><input type="date" value={comboForm.from} onChange={(e) => setComboForm({ ...comboForm, from: e.target.value })} /></div>
                 <div className="field"><label>Fecha hasta (sugerida, opcional)</label><input type="date" value={comboForm.to} onChange={(e) => setComboForm({ ...comboForm, to: e.target.value })} /></div>
               </div>
+              <div className="field">
+                <label>Foto del combo (opcional)</label>
+                <input type="file" accept="image/*" onChange={handleComboFile} disabled={comboUploading} />
+                {comboUploading && <p className="ficha-note" style={{ marginBottom: 0 }}>Subiendo foto…</p>}
+                {comboForm.img && (
+                  <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <img src={comboForm.img} alt="" style={{ height: 64, borderRadius: 8 }} />
+                    <button type="button" className="btn btn-sm btn-ghost" onClick={() => setComboForm({ ...comboForm, img: '' })}>Quitar</button>
+                  </div>
+                )}
+              </div>
               <div style={{ marginBottom: 8, fontSize: 12.5, color: 'var(--text-mid)', fontWeight: 700 }}>Elegí los productos que incluye (mínimo 2)</div>
               <div className="ficha-card" style={{ maxHeight: 220, overflowY: 'auto' }}>
                 {products.map((p) => (
@@ -211,7 +261,7 @@ export default function AdminCatalogo() {
                   </label>
                 ))}
               </div>
-              <button type="submit" className="btn btn-navy" style={{ marginTop: 14 }}>Crear combo</button>
+              <button type="submit" className="btn btn-navy" style={{ marginTop: 14 }} disabled={comboUploading}>Crear combo</button>
             </form>
           </div>
         )}

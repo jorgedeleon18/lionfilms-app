@@ -52,6 +52,7 @@ export async function fetchCatalog() {
     id: b.id,
     name: b.nombre,
     priceNum: Number(b.precio_num),
+    img: b.imagen_url || null,
     from: b.fecha_desde,
     to: b.fecha_hasta,
     items: (b.combo_items || []).map((i) => i.producto_id),
@@ -163,6 +164,11 @@ export async function crearCombo(data) {
     if (errItems) throw errItems;
   }
   return inserted.id;
+}
+
+export async function actualizarComboImagen(id, url) {
+  const { error } = await supabase.from('combos').update({ imagen_url: url }).eq('id', id);
+  if (error) throw error;
 }
 
 export async function borrarCombo(id) {
