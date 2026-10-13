@@ -436,9 +436,8 @@ footer{padding:44px 32px 60px;text-align:center;color:var(--text-low);font-size:
 
 @media (max-width:900px){
   .listado-layout{flex-direction:column;}
-  .sidebar{width:100%;position:static;display:flex;gap:16px;overflow-x:auto;padding-bottom:8px;}
-  .sidebar h4{display:none;}
-  .sidebar-item{border-bottom:none;white-space:nowrap;padding:8px 12px;background:var(--bg-soft);border-radius:999px;}
+  .sidebar{width:100%;position:static;padding-bottom:8px;}
+  .sidebar h4{margin-bottom:6px;}
   .booking-card{position:static;}
   .product-layout{flex-direction:column;}
   .product-col-left,.product-col-right{max-width:100%;}
