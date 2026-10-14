@@ -26,9 +26,12 @@ export default function CartDrawer() {
   if (!drawerOpen) return null;
 
   const pedirQuitar = (idxs, titulo, detalle) => setQuitar({ idxs, titulo, detalle });
+  const pedirVaciar = () => setQuitar({ todo: true, idxs: cart.map((_, i) => i), titulo: '¿Vaciar todo el carrito?', detalle: `Se van a sacar del pedido los ${cart.length} ${cart.length === 1 ? 'equipo' : 'equipos'}. No se puede deshacer.` });
   const confirmarQuitar = () => {
     if (quitar) {
-      if (quitar.idxs.length === 1) removeFromCart(quitar.idxs[0]); else removeCartItems(quitar.idxs);
+      if (quitar.todo) clearCart();
+      else if (quitar.idxs.length === 1) removeFromCart(quitar.idxs[0]);
+      else removeCartItems(quitar.idxs);
     }
     setQuitar(null);
   };
@@ -117,7 +120,10 @@ export default function CartDrawer() {
   return (
     <div className="drawer-overlay open" onClick={(e) => { if (e.target === e.currentTarget) setDrawerOpen(false); }}>
       <div className="drawer">
-        <h3>🛒 Tu pedido</h3>
+        <div className="cart-head">
+          <h3>🛒 Tu pedido</h3>
+          {cart.length > 0 && <span className="remove cart-vaciar" onClick={pedirVaciar}>Vaciar carrito</span>}
+        </div>
         <div>
           {cart.length === 0 ? (
             <div className="empty-cart">Todavía no agregaste nada.<br />Elegí equipo en el listado →</div>
@@ -216,7 +222,7 @@ export default function CartDrawer() {
             <p>{quitar.detalle}</p>
             <div className="confirm-actions">
               <button className="btn btn-outline btn-block" autoFocus onClick={() => setQuitar(null)}>No, volver</button>
-              <button className="btn btn-gradient btn-block" onClick={confirmarQuitar}>Sí, quitar</button>
+              <button className="btn btn-gradient btn-block" onClick={confirmarQuitar}>{quitar.todo ? 'Sí, vaciar' : 'Sí, quitar'}</button>
             </div>
           </div>
         </div>
