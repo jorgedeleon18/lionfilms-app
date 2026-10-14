@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { AppProvider } from './context/AppContext';
+import { AppProvider, useApp } from './context/AppContext';
 import Header from './components/Header';
 import CartDrawer from './components/CartDrawer';
 import Toast from './components/Toast';
@@ -25,6 +25,30 @@ import ErrorBoundary from './components/ErrorBoundary';
 function RoutesGuard({ children }) {
   const { pathname } = useLocation();
   return <ErrorBoundary resetKey={pathname}>{children}</ErrorBoundary>;
+}
+
+// Si el carrito llegara a fallar, que no se caiga todo el sitio: se ofrece vaciarlo.
+function CartFallback() {
+  const { clearCart, setDrawerOpen } = useApp();
+  return (
+    <div className="drawer-overlay open" onClick={(e) => { if (e.target === e.currentTarget) setDrawerOpen(false); }}>
+      <div className="drawer">
+        <h3>🛒 Tu pedido</h3>
+        <p className="ficha-note">No pudimos mostrar el carrito. Vaciándolo se arregla; después volvé a agregar los equipos.</p>
+        <button className="btn btn-gradient btn-block" onClick={() => { clearCart(); setDrawerOpen(false); }}>Vaciar carrito</button>
+        <button className="btn btn-ghost btn-block" style={{ marginTop: 8 }} onClick={() => setDrawerOpen(false)}>Cerrar</button>
+      </div>
+    </div>
+  );
+}
+
+function CartGuard() {
+  const { cart, drawerOpen } = useApp();
+  return (
+    <ErrorBoundary fallback={<CartFallback />} resetKey={`${cart.length}-${drawerOpen}`}>
+      <CartDrawer />
+    </ErrorBoundary>
+  );
 }
 
 function ScrollToTop() {
@@ -59,7 +83,7 @@ export default function App() {
         </Routes>
         </RoutesGuard>
         <SiteFooter />
-        <CartDrawer />
+        <CartGuard />
         <Toast />
         <GabyLoginModal />
       </AppProvider>

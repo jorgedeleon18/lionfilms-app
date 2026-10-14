@@ -22,7 +22,7 @@ begin
     url := 'https://fauzynceuyoxeafsiqai.supabase.co/functions/v1/notificar',
     headers := jsonb_build_object(
       'Content-Type', 'application/json',
-      'x-webhook-secret', 'Scocco322018@'
+      'x-webhook-secret', 'PEGAR_EL_SECRETO'
     ),
     body := jsonb_build_object('tabla', TG_TABLE_NAME, 'registro', to_jsonb(NEW))
   );

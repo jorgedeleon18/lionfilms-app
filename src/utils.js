@@ -10,6 +10,7 @@ export function fmtKey(key) {
   return `${d}/${m}/${y}`;
 }
 export function rentalDays(from, to) {
+  if (!from || !to) return 1; // combo sin fechas todavía: se cuenta 1 día hasta que se elijan
   const [fy, fm, fd] = from.split('-').map(Number);
   const [ty, tm, td] = to.split('-').map(Number);
   const diff = Math.round((new Date(ty, tm - 1, td) - new Date(fy, fm - 1, fd)) / 86400000);
@@ -21,3 +22,18 @@ export function money(n) {
 }
 export const MONTH_NAMES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 export const STATUS_LABEL = { pendiente: 'Pendiente', entregado: 'Entregado', no_disponible: 'No disponible' };
+
+// Todos los días entre dos fechas 'YYYY-MM-DD' (inclusive); [] si falta alguna.
+export function keysBetween(from, to) {
+  if (!from || !to) return [];
+  const [fy, fm, fd] = from.split('-').map(Number);
+  const [ty, tm, td] = to.split('-').map(Number);
+  const cursor = new Date(fy, fm - 1, fd);
+  const end = new Date(ty, tm - 1, td);
+  const keys = [];
+  while (cursor <= end) {
+    keys.push(dateKey(cursor.getFullYear(), cursor.getMonth(), cursor.getDate()));
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return keys;
+}

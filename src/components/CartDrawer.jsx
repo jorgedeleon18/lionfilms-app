@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { fmtKey, rentalDays, money } from '../utils';
+import { fmtKey, rentalDays, money, keysBetween } from '../utils';
 
 export default function CartDrawer() {
   const {
     drawerOpen, setDrawerOpen, cart, removeFromCart, clearCart,
     clienteRegistrado, clienteData, registrarReserva, setClienteActualDni, showToast,
-    getProduct,
+    getProduct, updateCartItem, blocked,
   } = useApp();
 
   const [form, setForm] = useState({ nombre: '', apellido: '', dni: '', tel: '', dir: '', mail: '' });
@@ -29,6 +29,17 @@ export default function CartDrawer() {
     total += p.priceNum * item.qty * days;
     return { item, idx, p, days };
   });
+
+  // Los combos sin fechas sugeridas entran al carrito sin fechas: hay que elegirlas.
+  const hoy = new Date();
+  const hoyKey = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
+  const sinFechas = (it) => !it.from || !it.to;
+  const rangoMal = (it) => !sinFechas(it) && it.to < it.from;
+  const ocupado = (it) => {
+    if (sinFechas(it) || rangoMal(it)) return false;
+    const bloq = new Set(blocked[it.productId] || []);
+    return keysBetween(it.from, it.to).some((k) => bloq.has(k));
+  };
 
   function buildOrderText() {
     let lines = [];
@@ -53,6 +64,9 @@ export default function CartDrawer() {
 
   function sendOrder(channel) {
     if (cart.length === 0) { showToast('Agregá al menos un producto'); return; }
+    if (cart.some(sinFechas)) { showToast('Elegí las fechas de cada equipo antes de enviar'); return; }
+    if (cart.some(rangoMal)) { showToast('Revisá las fechas: la devolución no puede ser antes del retiro'); return; }
+    if (cart.some(ocupado)) { showToast('Alguno de los equipos está reservado en esas fechas. Elegí otras o quitalo del pedido'); return; }
     const text = buildOrderText();
     const cliente = {
       nombre: form.nombre.trim() || 'Sin nombre',
@@ -94,7 +108,15 @@ export default function CartDrawer() {
                 <div className="thumb">{p.icon}</div>
                 <div className="info">
                   <b>{p.name} {item.qty > 1 ? `x${item.qty}` : ''}</b>
-                  <span>{fmtKey(item.from)} → {fmtKey(item.to)} · {days}d</span>
+                  {sinFechas(item) ? (
+                    <span className="cart-fechas">
+                      <label>Retiro <input type="date" min={hoyKey} value={item.from || ''} onChange={(e) => updateCartItem(idx, { from: e.target.value || null, to: item.to && e.target.value && item.to < e.target.value ? null : item.to })} /></label>
+                      <label>Devolución <input type="date" min={item.from || hoyKey} value={item.to || ''} onChange={(e) => updateCartItem(idx, { to: e.target.value || null })} /></label>
+                    </span>
+                  ) : (
+                    <span>{fmtKey(item.from)} → {fmtKey(item.to)} · {days}d</span>
+                  )}
+                  {ocupado(item) && <span className="cart-aviso">Reservado en esas fechas</span>}
                 </div>
                 <div className="remove" onClick={() => removeFromCart(idx)}>Quitar</div>
               </div>

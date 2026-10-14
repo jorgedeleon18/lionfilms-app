@@ -18,6 +18,7 @@ export default class ErrorBoundary extends Component {
   }
   render() {
     if (!this.state.failed) return this.props.children;
+    if (this.props.fallback !== undefined) return this.props.fallback;
     return (
       <main className="view active">
         <div className="state-box" role="alert">
