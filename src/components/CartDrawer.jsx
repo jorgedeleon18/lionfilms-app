@@ -128,7 +128,7 @@ export default function CartDrawer() {
                   )}
                   {g.rows.map(({ item, idx, p }) => (
                     <div className="cart-item" key={idx}>
-                      <div className="thumb">{p.icon}</div>
+                      <div className="thumb">{p.img ? <img src={p.img} alt="" /> : p.icon}</div>
                       <div className="info">
                         <b>{p.name} {item.qty > 1 ? `x${item.qty}` : ''}</b>
                         {!esCombo && (

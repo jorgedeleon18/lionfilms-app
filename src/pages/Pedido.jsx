@@ -33,7 +33,7 @@ export default function Pedido() {
             <div>
               {rows.map(({ item, p, days, subtotal }, idx) => (
                 <div className="order-item" key={idx}>
-                  <div className="thumb">{p.icon}</div>
+                  <div className="thumb">{p.img ? <img src={p.img} alt="" /> : p.icon}</div>
                   <div className="info">
                     <div className="cat">{catLabel(p.cat)}</div>
                     <h4>{p.name} {item.qty > 1 ? `× ${item.qty}` : ''}</h4>
@@ -76,7 +76,7 @@ export default function Pedido() {
                 const p = getProduct(item.productId);
                 return (
                   <div className="order-history-item" key={r.id + '-' + i}>
-                    <div className="thumb">{p.icon}</div>
+                    <div className="thumb">{p.img ? <img src={p.img} alt="" /> : p.icon}</div>
                     <div className="info">
                       <b>{p.name} {item.qty > 1 ? `× ${item.qty}` : ''}</b>
                       <span>{fmtKey(item.from)} → {fmtKey(item.to)}</span>

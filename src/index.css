@@ -546,3 +546,7 @@ footer{padding:44px 32px 60px;text-align:center;color:var(--text-low);font-size:
 /* Avisos de clientes nuevos (panel de Gaby) */
 .staff-pending.staff-new{background:var(--accent-orange);padding:0 8px;}
 .pill-nuevo{margin-left:10px;background:var(--accent-orange);color:#fff;font-size:9.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;padding:3px 8px;border-radius:999px;vertical-align:middle;}
+.cart-item .thumb{overflow:hidden;}
+.cart-item .thumb img,.ficha-reserva .thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.cart-item .thumb{width:56px;height:56px;}
+.ficha-reserva .thumb{overflow:hidden;}

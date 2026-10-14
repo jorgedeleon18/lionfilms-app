@@ -130,7 +130,7 @@ export default function Fichas() {
                       const isPendiente = item.status === 'pendiente';
                       return (
                         <div className="ficha-reserva" key={reservaId + '-' + itemIdx}>
-                          <div className="thumb">{p.icon}</div>
+                          <div className="thumb">{p.img ? <img src={p.img} alt="" /> : p.icon}</div>
                           <div className="r-info">
                             <b>{p.name} {item.qty > 1 ? `× ${item.qty}` : ''}</b>
                             <span>{fmtKey(item.from)} → {fmtKey(item.to)} · {days}d · {money(p.priceNum * item.qty * days)}</span>
