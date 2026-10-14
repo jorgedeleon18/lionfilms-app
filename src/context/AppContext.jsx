@@ -297,6 +297,10 @@ export function AppProvider({ children }) {
     setCart((c) => c.filter((_, i) => i !== idx));
   }, []);
   const clearCart = useCallback(() => setCart([]), []);
+  const removeCartItems = useCallback((idxs) => {
+    const set = new Set(idxs);
+    setCart((c) => c.filter((_, i) => !set.has(i)));
+  }, []);
   const updateCartItem = useCallback((idx, patch) => {
     setCart((c) => c.map((it, i) => (i === idx ? { ...it, ...patch } : it)));
   }, []);
@@ -396,7 +400,7 @@ export function AppProvider({ children }) {
     mode, setMode,
     gabySession, gabyLoginOpen, setGabyLoginOpen, gabyLoginError, gabyLoginLoading,
     loginGaby, logoutGaby,
-    cart, addToCart, removeFromCart, clearCart, updateCartItem,
+    cart, addToCart, removeFromCart, clearCart, updateCartItem, removeCartItems,
     clienteRegistrado, clienteData, clienteActualDni, setClienteActualDni,
     registrarCliente, editarRegistro, reconocerClienteExistente,
     blocked, toggleBlock, reloadBloqueos, bloqueosError,

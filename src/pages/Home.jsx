@@ -43,8 +43,10 @@ export default function Home() {
       navigate('/alta');
       return;
     }
-    bundle.items.forEach((pid) => addToCart({ productId: pid, qty: 1, from: bundle.from, to: bundle.to }));
-    showToast(`Combo "${bundle.name}" agregado 🎬 — podés ajustar las fechas en el carrito`);
+    // Todos los equipos del combo comparten una marca para elegir/cambiar sus fechas juntos en el carrito.
+    const comboKey = `${bundle.id}-${Date.now()}`;
+    bundle.items.forEach((pid) => addToCart({ productId: pid, qty: 1, from: bundle.from || null, to: bundle.to || null, comboKey, comboName: bundle.name }));
+    showToast(`Combo "${bundle.name}" agregado 🎬 — elegí o ajustá las fechas en el carrito`);
   }
 
   return (

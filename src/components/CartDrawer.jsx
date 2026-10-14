@@ -6,7 +6,7 @@ export default function CartDrawer() {
   const {
     drawerOpen, setDrawerOpen, cart, removeFromCart, clearCart,
     clienteRegistrado, clienteData, registrarReserva, setClienteActualDni, showToast,
-    getProduct, updateCartItem, blocked,
+    getProduct, updateCartItem, removeCartItems, blocked,
   } = useApp();
 
   const [form, setForm] = useState({ nombre: '', apellido: '', dni: '', tel: '', dir: '', mail: '' });
@@ -40,6 +40,14 @@ export default function CartDrawer() {
     const bloq = new Set(blocked[it.productId] || []);
     return keysBetween(it.from, it.to).some((k) => bloq.has(k));
   };
+
+  // Los equipos que vinieron de un mismo combo se agrupan; el resto va de a uno.
+  const grupos = [];
+  rows.forEach((r) => {
+    const key = r.item.comboKey || `i-${r.idx}`;
+    const g = grupos.find((x) => x.key === key);
+    if (g) g.rows.push(r); else grupos.push({ key, rows: [r] });
+  });
 
   function buildOrderText() {
     let lines = [];
@@ -103,24 +111,52 @@ export default function CartDrawer() {
           {cart.length === 0 ? (
             <div className="empty-cart">Todavía no agregaste nada.<br />Elegí equipo en el listado →</div>
           ) : (
-            rows.map(({ item, idx, p, days }) => (
-              <div className="cart-item" key={idx}>
-                <div className="thumb">{p.icon}</div>
-                <div className="info">
-                  <b>{p.name} {item.qty > 1 ? `x${item.qty}` : ''}</b>
-                  {sinFechas(item) ? (
-                    <span className="cart-fechas">
-                      <label>Retiro <input type="date" min={hoyKey} value={item.from || ''} onChange={(e) => updateCartItem(idx, { from: e.target.value || null, to: item.to && e.target.value && item.to < e.target.value ? null : item.to })} /></label>
-                      <label>Devolución <input type="date" min={item.from || hoyKey} value={item.to || ''} onChange={(e) => updateCartItem(idx, { to: e.target.value || null })} /></label>
-                    </span>
-                  ) : (
-                    <span>{fmtKey(item.from)} → {fmtKey(item.to)} · {days}d</span>
+            grupos.map((g) => {
+              const first = g.rows[0].item;
+              const esCombo = g.rows.length > 0 && first.comboKey;
+              const idxs = g.rows.map((r) => r.idx);
+              const setDesde = (v) => idxs.forEach((i) => updateCartItem(i, { from: v || null, ...(cart[i].to && v && cart[i].to < v ? { to: null } : {}) }));
+              const setHasta = (v) => idxs.forEach((i) => updateCartItem(i, { to: v || null }));
+              const dias = sinFechas(first) ? null : rentalDays(first.from, first.to);
+              return (
+                <div className={`cart-group${esCombo ? ' is-combo' : ''}`} key={g.key}>
+                  {esCombo && (
+                    <div className="cart-group-head">
+                      <b>🎬 {first.comboName || 'Combo'}</b>
+                      <span className="remove" onClick={() => removeCartItems(idxs)}>Quitar combo</span>
+                    </div>
                   )}
-                  {ocupado(item) && <span className="cart-aviso">Reservado en esas fechas</span>}
+                  {g.rows.map(({ item, idx, p }) => (
+                    <div className="cart-item" key={idx}>
+                      <div className="thumb">{p.icon}</div>
+                      <div className="info">
+                        <b>{p.name} {item.qty > 1 ? `x${item.qty}` : ''}</b>
+                        {!esCombo && (
+                          <span className="cart-fechas">
+                            <label>Retiro <input type="date" min={hoyKey} value={item.from || ''} onChange={(e) => setDesde(e.target.value)} /></label>
+                            <label>Devolución <input type="date" min={item.from || hoyKey} value={item.to || ''} onChange={(e) => setHasta(e.target.value)} /></label>
+                            {dias && <em className="cart-dias">{dias} {dias === 1 ? 'día' : 'días'}</em>}
+                          </span>
+                        )}
+                        {ocupado(item) && <span className="cart-aviso">Reservado en esas fechas</span>}
+                      </div>
+                      {!esCombo && <div className="remove" onClick={() => removeFromCart(idx)}>Quitar</div>}
+                      {esCombo && g.rows.length > 1 && <div className="remove" onClick={() => removeFromCart(idx)}>Quitar</div>}
+                    </div>
+                  ))}
+                  {esCombo && (
+                    <div className="cart-group-fechas">
+                      <span className="cart-fechas">
+                        <label>Retiro <input type="date" min={hoyKey} value={first.from || ''} onChange={(e) => setDesde(e.target.value)} /></label>
+                        <label>Devolución <input type="date" min={first.from || hoyKey} value={first.to || ''} onChange={(e) => setHasta(e.target.value)} /></label>
+                        {dias && <em className="cart-dias">{dias} {dias === 1 ? 'día' : 'días'}</em>}
+                      </span>
+                      <span className="muted" style={{ fontSize: 11 }}>Las fechas valen para todos los equipos del combo.</span>
+                    </div>
+                  )}
                 </div>
-                <div className="remove" onClick={() => removeFromCart(idx)}>Quitar</div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
 
