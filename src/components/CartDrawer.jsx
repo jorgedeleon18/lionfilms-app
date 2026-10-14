@@ -9,6 +9,7 @@ export default function CartDrawer() {
     getProduct, updateCartItem, removeCartItems, blocked,
   } = useApp();
 
+  const [quitar, setQuitar] = useState(null); // { idxs, titulo, detalle } mientras se pide confirmación
   const [form, setForm] = useState({ nombre: '', apellido: '', dni: '', tel: '', dir: '', mail: '' });
 
   useEffect(() => {
@@ -20,7 +21,17 @@ export default function CartDrawer() {
     }
   }, [drawerOpen, clienteRegistrado, clienteData]);
 
+  useEffect(() => { if (!drawerOpen) setQuitar(null); }, [drawerOpen]);
+
   if (!drawerOpen) return null;
+
+  const pedirQuitar = (idxs, titulo, detalle) => setQuitar({ idxs, titulo, detalle });
+  const confirmarQuitar = () => {
+    if (quitar) {
+      if (quitar.idxs.length === 1) removeFromCart(quitar.idxs[0]); else removeCartItems(quitar.idxs);
+    }
+    setQuitar(null);
+  };
 
   let total = 0;
   const rows = cart.map((item, idx) => {
@@ -123,7 +134,7 @@ export default function CartDrawer() {
                   {esCombo && (
                     <div className="cart-group-head">
                       <b>🎬 {first.comboName || 'Combo'}</b>
-                      <span className="remove" onClick={() => removeCartItems(idxs)}>Quitar combo</span>
+                      <span className="remove" onClick={() => pedirQuitar(idxs, `¿Quitar el combo "${first.comboName || 'Combo'}"?`, `Se van a sacar del pedido los ${idxs.length} equipos del combo.`)}>Quitar combo</span>
                     </div>
                   )}
                   {g.rows.map(({ item, idx, p }) => (
@@ -140,8 +151,8 @@ export default function CartDrawer() {
                         )}
                         {ocupado(item) && <span className="cart-aviso">Reservado en esas fechas</span>}
                       </div>
-                      {!esCombo && <div className="remove" onClick={() => removeFromCart(idx)}>Quitar</div>}
-                      {esCombo && g.rows.length > 1 && <div className="remove" onClick={() => removeFromCart(idx)}>Quitar</div>}
+                      {!esCombo && <div className="remove" onClick={() => pedirQuitar([idx], `¿Quitar ${p.name} del pedido?`, 'Vas a tener que volver a agregarlo si te arrepentís.')}>Quitar</div>}
+                      {esCombo && g.rows.length > 1 && <div className="remove" onClick={() => pedirQuitar([idx], `¿Quitar ${p.name} del combo?`, 'El resto del combo se mantiene en el pedido.')}>Quitar</div>}
                     </div>
                   ))}
                   {esCombo && (
@@ -197,6 +208,19 @@ export default function CartDrawer() {
           </>
         )}
       </div>
+      {quitar && (
+        <div className="confirm-overlay" role="dialog" aria-modal="true" onClick={(e) => { if (e.target === e.currentTarget) setQuitar(null); }} onKeyDown={(e) => { if (e.key === 'Escape') setQuitar(null); }}>
+          <div className="confirm-box">
+            <div className="confirm-icon">🗑️</div>
+            <h4>{quitar.titulo}</h4>
+            <p>{quitar.detalle}</p>
+            <div className="confirm-actions">
+              <button className="btn btn-outline btn-block" autoFocus onClick={() => setQuitar(null)}>No, volver</button>
+              <button className="btn btn-gradient btn-block" onClick={confirmarQuitar}>Sí, quitar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
