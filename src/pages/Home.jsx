@@ -50,8 +50,8 @@ export default function Home() {
   return (
     <main className="view active">
       <div className="hero">
-        <div className="hero-eyebrow">Alquiler de equipo audiovisual</div>
-        <h1>Cámaras, luces y <em>todo lo visual</em> para tu rodaje</h1>
+        <div className="hero-eyebrow">Alquiler de equipamiento audiovisual para estudiantes, realizadores y profesionales.</div>
+        <h1>Cámaras, luces, sonido y <em>todo lo que necesitás</em> para tu rodaje</h1>
         <p>Elegí el equipo, marcá las fechas que necesitás y mandanos tu pedido armado por WhatsApp.</p>
         <div className="hero-actions">
           <a className="btn btn-gradient" onClick={() => navigate('/listado/todas')}>Ver listado de equipos</a>
