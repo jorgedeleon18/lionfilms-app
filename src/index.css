@@ -560,4 +560,7 @@ footer{padding:44px 32px 60px;text-align:center;color:var(--text-low);font-size:
 @keyframes confirm-pop{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
 .cart-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px;}
 .cart-head h3{margin:0;}
-.cart-vaciar{font-size:12.5px;white-space:nowrap;}
+.btn-cristal{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;font:inherit;font-size:12.5px;font-weight:700;color:#fff;cursor:pointer;white-space:nowrap;background:linear-gradient(180deg,rgba(255,255,255,0.16),rgba(255,255,255,0.05));border:1px solid rgba(255,255,255,0.22);box-shadow:inset 0 1px 0 rgba(255,255,255,0.28),0 4px 14px rgba(0,0,0,0.25);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:background .15s,border-color .15s,transform .1s;}
+.btn-cristal:hover{background:linear-gradient(180deg,rgba(255,110,130,0.28),rgba(255,255,255,0.08));border-color:rgba(255,140,160,0.55);}
+.btn-cristal:active{transform:scale(.97);}
+.btn-cristal:focus-visible{outline:2px solid rgba(255,255,255,.6);outline-offset:2px;}

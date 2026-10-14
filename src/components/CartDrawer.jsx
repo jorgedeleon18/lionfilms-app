@@ -122,7 +122,7 @@ export default function CartDrawer() {
       <div className="drawer">
         <div className="cart-head">
           <h3>🛒 Tu pedido</h3>
-          {cart.length > 0 && <span className="remove cart-vaciar" onClick={pedirVaciar}>Vaciar carrito</span>}
+          {cart.length > 0 && <button type="button" className="btn-cristal cart-vaciar" onClick={pedirVaciar}><span aria-hidden="true">🗑️</span> Vaciar carrito</button>}
         </div>
         <div>
           {cart.length === 0 ? (
