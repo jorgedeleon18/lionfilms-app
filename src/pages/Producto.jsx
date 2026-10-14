@@ -113,7 +113,7 @@ export default function Producto() {
           </div>
           <div className="product-desc">
             <h3>Descripción</h3>
-            <p>{p.descripcion || p.sub}</p>
+            <p className="desc-texto">{p.descripcion || p.sub}</p>
             <p>Equipo revisado y testeado antes de cada entrega — coordinamos con vos el retiro y la devolución una vez confirmada la reserva.</p>
             {p.specs.length > 0 && (
               <>

@@ -152,7 +152,7 @@ export default function AdminProducto() {
             <div className="field"><label>Subtítulo</label><input value={form.sub} onChange={(e) => setField('sub', e.target.value)} placeholder="Full frame compacta, mirrorless" /></div>
           </div>
           <div className="field-row">
-            <div className="field"><label>Descripción</label><input value={form.descripcion} onChange={(e) => setField('descripcion', e.target.value)} placeholder="Detalle más largo (opcional)" /></div>
+            <div className="field"><label>Descripción</label><textarea rows={8} value={form.descripcion} onChange={(e) => setField('descripcion', e.target.value)} placeholder="Detalle más largo (opcional). Con Enter se baja de renglón; dejá un renglón vacío para separar párrafos." /></div>
           </div>
 
           <div className="field-row">
