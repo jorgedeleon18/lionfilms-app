@@ -52,7 +52,7 @@ export default function Home() {
       <div className="hero">
         <div className="hero-eyebrow">Alquiler de equipo audiovisual</div>
         <h1>Cámaras, luces y <em>todo lo visual</em> para tu rodaje</h1>
-        <p>Elegí el equipo, marcá las fechas que necesitás y mandanos tu pedido armado por WhatsApp. Gaby lo confirma y coordina la entrega con vos.</p>
+        <p>Elegí el equipo, marcá las fechas que necesitás y mandanos tu pedido armado por WhatsApp.</p>
         <div className="hero-actions">
           <a className="btn btn-gradient" onClick={() => navigate('/listado/todas')}>Ver listado de equipos</a>
           <a className="btn btn-outline" onClick={() => navigate('/como-alquilar')}>Cómo alquilar</a>
